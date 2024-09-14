@@ -1,21 +1,23 @@
 import os
 
-from pymongo import MongoClient
+import motor.motor_asyncio
 from dotenv import load_dotenv
+from fastapi.encoders import jsonable_encoder
 
 load_dotenv()
 
-client = MongoClient(os.environ['MONGO_URI'])
-portfolio = client['po']['portfolio']
-survey = client['po']['survey']
+client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
+portfolio = client.po.get_collection('portfolio')
+survey = client.po.get_collection('survey')
 
 
-def insert_survey(survey_result):
-    survey.insert_one(survey_result)
+async def insert_survey(survey_result):
+    new_survey = await survey.insert_one(survey_result.model_dump(by_alias=True, exclude=["id"]))
+    return jsonable_encoder(new_survey.inserted_id)
 
 
-def insert_portfolio(portfolio_id, portfolio_result):
-    portfolio.insert_one({
+async def insert_portfolio(portfolio_id, portfolio_result):
+    await portfolio.insert_one({
         'portfolio_id': portfolio_id,
         'portfolio': portfolio_result
     })
