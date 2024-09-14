@@ -2,8 +2,8 @@
 	path = po
 	url = https://github.com/grandpariley/po
 [submodule "po-import"]
-	path = po-import
+	path = poimport
 	url = https://github.com/grandpariley/po-import
 [submodule "po-match"]
-	path = po-match
+	path = pomatch
 	url = https://github.com/grandpariley/po-match

@@ -1,21 +1,20 @@
+import sys
 from asyncio import run
+
 from fastapi import FastAPI
-from pydantic import BaseModel
 from uuid import uuid4
 
 import db
+from pomatch.pkg.response import Response
 
 app = FastAPI()
 
-
-class SurveyResult(BaseModel):
-    field: str
 
 async def portfolio_optimization(survey_result):
     print('we up and runnin')
 
 @app.post("/api/v1/survey")
-def survey(survey_result: SurveyResult):
+def survey(survey_result: Response):
     db.insert_survey(survey_result)
     portfolio_id = uuid4()
     run(portfolio_optimization(survey_result))
