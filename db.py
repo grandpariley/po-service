@@ -1,8 +1,10 @@
 import os
 
 import motor.motor_asyncio
+from bson import ObjectId
 from dotenv import load_dotenv
-from fastapi.encoders import jsonable_encoder
+
+from pomatch.pkg.response import ResponseJSONEncoder
 
 load_dotenv()
 
@@ -13,18 +15,19 @@ survey = client.po.get_collection('survey')
 
 async def insert_survey(survey_result):
     new_survey = await survey.insert_one(survey_result.model_dump(by_alias=True, exclude=["id"]))
-    return jsonable_encoder(new_survey.inserted_id)
+    return ResponseJSONEncoder().encode(new_survey.inserted_id).replace('"', '')
 
 
 async def insert_portfolio(portfolio_id, portfolio_result):
     await portfolio.insert_one({
-        'portfolio_id': portfolio_id,
+        '_id': ObjectId(portfolio_id),
         'portfolio': portfolio_result
     })
 
 
-def portfolio_exists(portfolio_id):
-    return portfolio.estimated_document_count({'portfolio_id': portfolio_id}) > 0
+async def portfolio_exists(portfolio_id):
+    return await portfolio.estimated_document_count({'_id': ObjectId(portfolio_id)}) > 0
 
-def get_portfolio(portfolio_id):
-    return portfolio.find_one({'portfolio_id': portfolio_id})
+async def get_portfolio(portfolio_id):
+    response = await portfolio.find_one({'_id': ObjectId(portfolio_id)})
+    return ResponseJSONEncoder().encode(response)
