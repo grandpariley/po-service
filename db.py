@@ -18,6 +18,14 @@ async def insert_survey(survey_result):
     return ResponseJSONEncoder().encode(new_survey.inserted_id).replace('"', '')
 
 
+async def get_surveys():
+    results = []
+    cursor = survey.find({})
+    for document in await cursor.to_list(length=100):
+        results += document
+    return results
+
+
 async def insert_portfolio(portfolio_id, portfolio_result):
     await portfolio.insert_one({
         '_id': ObjectId(portfolio_id),
@@ -27,6 +35,7 @@ async def insert_portfolio(portfolio_id, portfolio_result):
 
 async def portfolio_exists(portfolio_id):
     return await portfolio.estimated_document_count({'_id': ObjectId(portfolio_id)}) > 0
+
 
 async def get_portfolio(portfolio_id):
     response = await portfolio.find_one({'_id': ObjectId(portfolio_id)})
