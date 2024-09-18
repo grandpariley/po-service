@@ -19,12 +19,11 @@ async def insert_survey(survey_result):
 
 
 async def get_surveys():
+    cursor = survey.find(None).allow_disk_use(True)
     results = []
-    cursor = survey.find({})
-    for document in await cursor.to_list(length=100):
-        results += document
+    async for result in cursor:
+        results.append(result)
     return results
-
 
 async def insert_portfolio(portfolio_id, portfolio_result):
     await portfolio.insert_one({
