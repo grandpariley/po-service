@@ -4,6 +4,7 @@ import motor.motor_asyncio
 from bson import ObjectId
 from dotenv import load_dotenv
 
+from po.pkg.problem.problem import problem_encoder_fn
 from pomatch.pkg.response import ResponseJSONEncoder
 
 load_dotenv()
@@ -27,15 +28,14 @@ async def get_surveys():
 
 async def insert_portfolio(portfolio_id, portfolio_result):
     await portfolio.insert_one({
-        '_id': ObjectId(portfolio_id),
-        'portfolio': portfolio_result
+        'portfolio_id': portfolio_id,
+        'portfolio': list(map(problem_encoder_fn, portfolio_result))
     })
 
 
 async def portfolio_exists(portfolio_id):
-    return await portfolio.estimated_document_count({'_id': ObjectId(portfolio_id)}) > 0
+    return await portfolio.estimated_document_count({'portfolio_id': portfolio_id}) > 0
 
 
 async def get_portfolio(portfolio_id):
-    response = await portfolio.find_one({'_id': ObjectId(portfolio_id)})
-    return ResponseJSONEncoder().encode(response)
+    return await portfolio.find_one({'portfolio_id': portfolio_id})
