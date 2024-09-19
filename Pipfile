@@ -9,6 +9,10 @@ pymongo = "*"
 python-dotenv = "*"
 motor = "*"
 progressbar = "*"
+numpy = "*"
+quantstats = "*"
+yahooquery = "*"
+ipython = "*"
 
 [dev-packages]
 
