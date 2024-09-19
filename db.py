@@ -1,7 +1,6 @@
 import os
 
 import motor.motor_asyncio
-from bson import ObjectId
 from dotenv import load_dotenv
 
 from po.pkg.problem.problem import problem_encoder_fn
@@ -16,7 +15,7 @@ survey = client.po.get_collection('survey')
 
 async def insert_survey(survey_result):
     new_survey = await survey.insert_one(survey_result.model_dump(by_alias=True, exclude=["id"]))
-    return ResponseJSONEncoder().encode(new_survey.inserted_id).replace('"', '')
+    return str(new_survey.inserted_id)
 
 
 async def get_surveys():
@@ -25,6 +24,7 @@ async def get_surveys():
     async for result in cursor:
         results.append(result)
     return results
+
 
 async def insert_portfolio(portfolio_id, portfolio_result):
     await portfolio.insert_one({
