@@ -1,6 +1,9 @@
+import json
 import os
+from json import JSONDecoder
 
 import motor.motor_asyncio
+from bson import ObjectId
 from dotenv import load_dotenv
 
 from po.pkg.problem.problem import problem_encoder_fn
@@ -10,6 +13,13 @@ load_dotenv()
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
 portfolio = client.po.get_collection('portfolio')
 survey = client.po.get_collection('survey')
+
+
+class MongoJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 
 async def insert_survey(survey_result):
@@ -29,7 +39,7 @@ async def insert_portfolio(portfolio_id, portfolio_result):
 
 
 async def get_portfolio(portfolio_id):
-    return await portfolio.find_one({'portfolio_id': portfolio_id})
+    return JSONDecoder().decode(MongoJSONEncoder().encode(await portfolio.find_one({'portfolio_id': portfolio_id})))
 
 
 async def portfolio_exists(portfolio_id):
