@@ -43,7 +43,7 @@ async def get_portfolio(portfolio_id):
 
 
 async def portfolio_exists(portfolio_id):
-    return await portfolio.estimated_document_count({'portfolio_id': portfolio_id}) > 0
+    return await portfolio.count_documents({'portfolio_id': portfolio_id}) > 0
 
 
 async def find_all(cursor):
