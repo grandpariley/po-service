@@ -1,6 +1,9 @@
+import os
 from asyncio import create_task
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 import db
 import po.main
@@ -9,9 +12,19 @@ from po.pkg.problem.builder import default_portfolio_optimization_problem_by_wei
 from pomatch.main import get_responses
 from pomatch.pkg.response import Response
 
+load_dotenv()
+
 app = FastAPI()
 
-# test value 66ea19e61d477acab327bf2b
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.environ["FRONTEND_ORIGINS"].split(','),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 async def portfolio_optimization(portfolio_id):
     all_responses = await db.get_surveys()
     all_weights = pomatch.main.get_weights(get_responses(all_responses))
@@ -25,6 +38,7 @@ async def portfolio_optimization(portfolio_id):
 async def survey(portfolio_id):
     create_task(portfolio_optimization(portfolio_id))
     return {'portfolio_id': portfolio_id}
+
 
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
