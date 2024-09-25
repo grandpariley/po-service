@@ -7,9 +7,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 import db
 import po.main
-import pomatch.main
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights
-from pomatch.main import get_responses
+from pomatch.main import get_responses, get_weights
 from pomatch.pkg.response import Response
 
 load_dotenv()
@@ -27,7 +26,7 @@ app.add_middleware(
 
 async def portfolio_optimization(portfolio_id):
     all_responses = await db.get_surveys()
-    all_weights = pomatch.main.get_weights(get_responses(all_responses))
+    all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
     await po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
