@@ -8,8 +8,8 @@ from starlette.middleware.cors import CORSMiddleware
 import db
 import po.main
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights
-from pomatch.main import get_responses, get_weights
-from pomatch.pkg.response import Response
+from pomatch.pkg.response import Response, get_responses
+from pomatch.pkg.weights import get_weights
 
 load_dotenv()
 
