@@ -13,8 +13,10 @@ load_dotenv()
 
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
 portfolio = client.po.get_collection('portfolio')
+arch2_portfolio = client.po.get_collection('arch2_portfolio')
 survey = client.po.get_collection('survey')
 client.get_io_loop = asyncio.get_running_loop
+
 
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -54,3 +56,11 @@ async def find_all(cursor):
     async for result in cursor:
         results.append(result)
     return results
+
+
+async def insert_arch2_portfolios(solutions):
+    await arch2_portfolio.insert_one(solutions)
+
+
+async def get_arch2_portfolios():
+    return await find_all(arch2_portfolio.find(None))

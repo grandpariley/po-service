@@ -1,7 +1,6 @@
 import asyncio
 import os
 import threading
-from asyncio import create_task
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -9,7 +8,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 import db
 import po.main
-from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights
+from po.match import match_portfolio
+from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
+    default_portfolio_optimization_problem_arch_2
 from pomatch.pkg.response import Response, get_responses
 from pomatch.pkg.weights import get_weights
 
@@ -26,15 +27,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+def arch2():
+    solutions = po.main.main({
+        'arch2': default_portfolio_optimization_problem_arch_2(),
+    })
+    db.insert_arch2_portfolios(solutions)
+
+
+app.add_event_handler(event_type='startup', func=arch2)
+
+
+def get_matched_portfolio(portfolio_id):
+    weights = get_portfolio_weights(portfolio_id)
+    solutions = asyncio.run(db.get_arch2_portfolios())
+    return match_portfolio(weights, solutions)
+
+
 def portfolio_optimization(portfolio_id):
+    weights = get_portfolio_weights(portfolio_id)
+    solutions = po.main.main({
+        'arch1': default_portfolio_optimization_problem_by_weights(weights),
+    })
+    for name in solutions.keys():
+        asyncio.run(db.insert_portfolio(portfolio_id, solutions[name]))
+
+
+def get_portfolio_weights(portfolio_id):
     all_responses = asyncio.run(db.get_surveys())
     all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
-    solutions = asyncio.run(po.main.main({
-        'arch1': default_portfolio_optimization_problem_by_weights(weights),
-    }, portfolio_id))
-    for name in solutions.keys():
-        asyncio.run(db.insert_portfolio(portfolio_id, solutions[name]))
+    return weights
 
 
 @app.post("/api/v1/survey")
@@ -59,4 +82,5 @@ async def status(portfolio_id: str):
 
 @app.get("/api/v1/portfolio/{portfolio_id}")
 async def portfolio(portfolio_id: str):
-    return await db.get_portfolio(portfolio_id)
+    matched_portfolio = get_matched_portfolio(portfolio_id)
+    return [matched_portfolio, ...(await db.get_portfolio(portfolio_id))]
