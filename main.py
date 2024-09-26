@@ -1,5 +1,6 @@
 import asyncio
 import os
+import threading
 from asyncio import create_task
 
 from dotenv import load_dotenv
@@ -24,19 +25,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def portfolio_optimization(portfolio_id):
-    all_responses = await db.get_surveys()
+def portfolio_optimization(portfolio_id):
+    all_responses = asyncio.run(db.get_surveys())
     all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
-    await po.main.main({
+    asyncio.run(po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
-    }, portfolio_id)
+    }, portfolio_id))
 
 
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    create_task(portfolio_optimization(portfolio_id))
+    threading.Thread(target=portfolio_optimization, args=(portfolio_id,), daemon=True)
     return {'portfolio_id': portfolio_id}
 
 
