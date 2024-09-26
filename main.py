@@ -4,7 +4,7 @@ import threading
 from asyncio import create_task
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 import db
@@ -45,6 +45,8 @@ async def survey(survey_result: Response):
 
 @app.get("/api/v1/portfolio/{portfolio_id}/status")
 async def status(portfolio_id: str):
+    if portfolio_id in threads.keys():
+        raise HTTPException(status_code=404, detail="Item not found")
     print(portfolio_id + " is alive: " + str(threads['portfolio_id'].is_alive()))
     if await db.portfolio_exists(portfolio_id):
         return {'status': 'READY'}
