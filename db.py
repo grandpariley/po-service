@@ -10,10 +10,7 @@ from po.pkg.problem.problem import problem_encoder_fn
 
 load_dotenv()
 
-client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
-portfolio = client.po.get_collection('portfolio')
-survey = client.po.get_collection('survey')
-
+client: motor.motor_asyncio.AsyncIOMotorClient = None
 
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -22,28 +19,37 @@ class MongoJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
+def connect_db():
+    global client
+    client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
+
+
+def close_db():
+    client.close()
+
+
 async def insert_survey(survey_result):
-    new_survey = await survey.insert_one(survey_result.model_dump(by_alias=True, exclude=["id"]))
+    new_survey = await client.po.get_collection('survey').insert_one(survey_result.model_dump(by_alias=True, exclude=["id"]))
     return str(new_survey.inserted_id)
 
 
 async def get_surveys():
-    return await find_all(survey.find(None))
+    return await find_all(client.po.get_collection('survey').find(None))
 
 
 async def insert_portfolio(portfolio_id, portfolio_result):
-    await portfolio.insert_one({
+    await client.po.get_collection('portfolio').insert_one({
         'portfolio_id': portfolio_id,
         'portfolio': list(map(problem_encoder_fn, portfolio_result))
     })
 
 
 async def get_portfolio(portfolio_id):
-    return JSONDecoder().decode(MongoJSONEncoder().encode(await portfolio.find_one({'portfolio_id': portfolio_id})))
+    return JSONDecoder().decode(MongoJSONEncoder().encode(await client.po.get_collection('portfolio').find_one({'portfolio_id': portfolio_id})))
 
 
 async def portfolio_exists(portfolio_id):
-    return await portfolio.count_documents({'portfolio_id': portfolio_id}) > 0
+    return await client.po.get_collection('portfolio').count_documents({'portfolio_id': portfolio_id}) > 0
 
 
 async def find_all(cursor):
