@@ -38,10 +38,9 @@ async def arch2():
 app.add_event_handler(event_type='startup', func=arch2)
 
 
-def get_matched_portfolio(portfolio_id):
-    loop = asyncio.get_event_loop()
-    weights = loop.run_until_complete(get_portfolio_weights(portfolio_id))
-    solutions = loop.run_until_complete(db.get_arch2_portfolios())
+async def get_matched_portfolio(portfolio_id):
+    weights = await get_portfolio_weights(portfolio_id)
+    solutions = await db.get_arch2_portfolios()
     return match_portfolio(weights, solutions)
 
 
@@ -73,7 +72,6 @@ async def survey(survey_result: Response):
 async def status(portfolio_id: str):
     if portfolio_id not in threads.keys():
         raise HTTPException(status_code=404, detail="Item not found")
-    print(portfolio_id + " is alive: " + str(threads[portfolio_id].is_alive()))
     if await db.portfolio_exists(portfolio_id):
         return {'status': 'READY'}
     if threads[portfolio_id].is_alive():
@@ -83,5 +81,5 @@ async def status(portfolio_id: str):
 
 @app.get("/api/v1/portfolio/{portfolio_id}")
 async def portfolio(portfolio_id: str):
-    matched_portfolio = get_matched_portfolio(portfolio_id)
+    matched_portfolio = await get_matched_portfolio(portfolio_id)
     return [matched_portfolio, ...(await db.get_portfolio(portfolio_id))]
