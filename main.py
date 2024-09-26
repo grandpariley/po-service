@@ -82,4 +82,5 @@ async def status(portfolio_id: str):
 @app.get("/api/v1/portfolio/{portfolio_id}")
 async def portfolio(portfolio_id: str):
     matched_portfolio = await get_matched_portfolio(portfolio_id)
-    return [matched_portfolio, ...(await db.get_portfolio(portfolio_id))]
+    custom_portfolios = await db.get_portfolio(portfolio_id)
+    return custom_portfolios + [matched_portfolio]
