@@ -39,8 +39,9 @@ app.add_event_handler(event_type='startup', func=arch2)
 
 
 def get_matched_portfolio(portfolio_id):
-    weights = asyncio.run(get_portfolio_weights(portfolio_id))
-    solutions = asyncio.run(db.get_arch2_portfolios())
+    loop = asyncio.get_event_loop()
+    weights = loop.run_until_complete(get_portfolio_weights(portfolio_id))
+    solutions = loop.run_until_complete(db.get_arch2_portfolios())
     return match_portfolio(weights, solutions)
 
 
