@@ -39,13 +39,13 @@ app.add_event_handler(event_type='startup', func=arch2)
 
 
 def get_matched_portfolio(portfolio_id):
-    weights = get_portfolio_weights(portfolio_id)
+    weights = asyncio.run(get_portfolio_weights(portfolio_id))
     solutions = asyncio.run(db.get_arch2_portfolios())
     return match_portfolio(weights, solutions)
 
 
 def portfolio_optimization(portfolio_id):
-    weights = get_portfolio_weights(portfolio_id)
+    weights = asyncio.run(get_portfolio_weights(portfolio_id))
     solutions = po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
     })
@@ -53,8 +53,8 @@ def portfolio_optimization(portfolio_id):
         asyncio.run(db.insert_portfolio(portfolio_id, solutions[name]))
 
 
-def get_portfolio_weights(portfolio_id):
-    all_responses = asyncio.run(db.get_surveys())
+async def get_portfolio_weights(portfolio_id):
+    all_responses = await db.get_surveys()
     all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
     return weights
