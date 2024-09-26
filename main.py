@@ -30,9 +30,11 @@ def portfolio_optimization(portfolio_id):
     all_responses = asyncio.run(db.get_surveys())
     all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
-    asyncio.run(po.main.main({
+    solutions = asyncio.run(po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
     }, portfolio_id))
+    for name in solutions.keys():
+        asyncio.run(db.insert_portfolio(portfolio_id, solutions[name]))
 
 
 @app.post("/api/v1/survey")
