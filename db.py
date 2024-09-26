@@ -59,7 +59,8 @@ async def find_all(cursor):
 
 
 async def insert_arch2_portfolios(solutions):
-    await arch2_portfolio.insert_one(list(map(problem_encoder_fn, solutions)))
+    print(solutions)
+    await arch2_portfolio.insert_many(list(map(problem_encoder_fn, solutions)))
 
 
 async def get_arch2_portfolios():
