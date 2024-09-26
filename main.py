@@ -32,7 +32,7 @@ async def arch2():
     solutions = po.main.main({
         'arch2': default_portfolio_optimization_problem_arch_2(),
     })
-    await db.insert_arch2_portfolios(solutions)
+    await db.insert_arch2_portfolios(solutions['name'])
 
 
 app.add_event_handler(event_type='startup', func=arch2)
