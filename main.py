@@ -47,7 +47,7 @@ async def survey(survey_result: Response):
 
 @app.get("/api/v1/portfolio/{portfolio_id}/status")
 async def status(portfolio_id: str):
-    if portfolio_id in threads.keys():
+    if portfolio_id not in threads.keys():
         raise HTTPException(status_code=404, detail="Item not found")
     print(portfolio_id + " is alive: " + str(threads['portfolio_id'].is_alive()))
     if await db.portfolio_exists(portfolio_id):
