@@ -15,6 +15,7 @@ from pomatch.pkg.weights import get_weights
 
 load_dotenv()
 
+threads = {}
 app = FastAPI()
 
 app.add_middleware(
@@ -37,12 +38,14 @@ def portfolio_optimization(portfolio_id):
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    threading.Thread(target=portfolio_optimization, args=(portfolio_id,), daemon=True)
+    threads['portfolio_id'] = threading.Thread(target=portfolio_optimization, args=(portfolio_id,), daemon=True)
+    threads['portfolio_id'].start()
     return {'portfolio_id': portfolio_id}
 
 
 @app.get("/api/v1/portfolio/{portfolio_id}/status")
 async def status(portfolio_id: str):
+    print(portfolio_id + " is alive: " + str(threads['portfolio_id'].is_alive()))
     if await db.portfolio_exists(portfolio_id):
         return {'status': 'READY'}
     return {'status': 'PENDING'}
