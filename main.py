@@ -23,8 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_event_handler("startup", db.connect_db)
-app.add_event_handler("shutdown", db.close_db)
 
 async def portfolio_optimization(portfolio_id):
     all_responses = await db.get_surveys()
