@@ -40,8 +40,8 @@ def portfolio_optimization(portfolio_id):
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    threads['portfolio_id'] = threading.Thread(target=portfolio_optimization, args=(portfolio_id,), daemon=True)
-    threads['portfolio_id'].start()
+    threads[portfolio_id] = threading.Thread(target=portfolio_optimization, args=(portfolio_id,), daemon=True)
+    threads[portfolio_id].start()
     return {'portfolio_id': portfolio_id}
 
 
