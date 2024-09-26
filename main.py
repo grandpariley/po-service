@@ -83,4 +83,6 @@ async def status(portfolio_id: str):
 async def portfolio(portfolio_id: str):
     matched_portfolio = await get_matched_portfolio(portfolio_id)
     custom_portfolios = await db.get_portfolio(portfolio_id)
+    print(matched_portfolio)
+    print(custom_portfolios)
     return custom_portfolios + [matched_portfolio]
