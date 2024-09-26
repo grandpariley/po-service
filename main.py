@@ -52,7 +52,9 @@ async def status(portfolio_id: str):
     print(portfolio_id + " is alive: " + str(threads[portfolio_id].is_alive()))
     if await db.portfolio_exists(portfolio_id):
         return {'status': 'READY'}
-    return {'status': 'PENDING'}
+    if threads[portfolio_id].is_alive():
+        return {'status': 'PENDING'}
+    return {'status': 'ERROR'}
 
 
 @app.get("/api/v1/portfolio/{portfolio_id}")
