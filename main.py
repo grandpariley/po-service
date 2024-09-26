@@ -32,7 +32,7 @@ def arch2():
     solutions = po.main.main({
         'arch2': default_portfolio_optimization_problem_arch_2(),
     })
-    db.insert_arch2_portfolios(solutions)
+    asyncio.run(db.insert_arch2_portfolios(solutions))
 
 
 app.add_event_handler(event_type='startup', func=arch2)
