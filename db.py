@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from json import JSONDecoder
@@ -13,7 +14,7 @@ load_dotenv()
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
 portfolio = client.po.get_collection('portfolio')
 survey = client.po.get_collection('survey')
-
+client.get_io_loop = asyncio.get_running_loop
 
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, o):
