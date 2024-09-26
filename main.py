@@ -43,7 +43,7 @@ async def survey(survey_result: Response):
 
 
 @app.get("/api/v1/portfolio/{portfolio_id}/status")
-def status(portfolio_id: str):
+async def status(portfolio_id: str):
     if asyncio.run(db.portfolio_exists(portfolio_id)):
         return {'status': 'READY'}
     return {'status': 'PENDING'}
