@@ -58,6 +58,10 @@ async def find_all(cursor):
     return results
 
 
+async def clear_arch2_portfolio():
+    await arch2_portfolio.delete_many({})
+
+
 async def insert_arch2_portfolios(solutions):
     await arch2_portfolio.insert_many(list(map(problem_encoder_fn, solutions)))
 

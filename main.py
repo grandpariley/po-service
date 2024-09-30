@@ -29,6 +29,7 @@ app.add_middleware(
 
 
 async def arch2():
+    await db.clear_arch2_portfolio()
     solutions = po.main.main({
         'arch2': default_portfolio_optimization_problem_arch_2(),
     })
