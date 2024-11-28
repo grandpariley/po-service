@@ -13,7 +13,6 @@ numpy = "*"
 quantstats = "*"
 yahooquery = "*"
 ipython = "*"
-ioloop = "*"
 
 [dev-packages]
 
