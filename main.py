@@ -1,6 +1,7 @@
 import asyncio
 import os
 import threading
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -15,9 +16,16 @@ from pomatch.pkg.response import Response, get_responses
 from pomatch.pkg.weights import get_weights
 
 load_dotenv()
-
 threads = {}
-app = FastAPI()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await arch2()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,9 +42,6 @@ async def arch2():
         'arch2': default_portfolio_optimization_problem_arch_2(),
     })
     await db.insert_arch2_portfolios(solutions['arch2'])
-
-
-app.add_event_handler(event_type='startup', func=arch2)
 
 
 async def get_matched_portfolio(portfolio_id):
