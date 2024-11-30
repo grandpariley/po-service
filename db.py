@@ -35,7 +35,7 @@ async def get_surveys():
 
 
 async def insert_portfolio(portfolio_id, portfolio_result):
-    print('saving portfolio: ' + portfolio_id + ' with results of length ' + str(len(portfolio_result['variables'])))
+    print('saving portfolio: ' + portfolio_id)
     await portfolio.insert_one({
         'portfolio_id': portfolio_id,
         'portfolio': list(map(problem_encoder_fn, portfolio_result))
@@ -63,7 +63,6 @@ async def clear_arch2_portfolio():
 
 
 async def insert_arch2_portfolios(solutions):
-    print('saving ' + str(len(solutions)) + ' solutions')
     await arch2_portfolio.insert_many(list(map(problem_encoder_fn, solutions)))
 
 

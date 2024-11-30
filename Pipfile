@@ -13,7 +13,6 @@ numpy = "*"
 quantstats = "*"
 yahooquery = "*"
 ipython = "*"
-nest_asyncio = "*"
 
 [dev-packages]
 
