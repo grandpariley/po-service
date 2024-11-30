@@ -13,6 +13,7 @@ numpy = "*"
 quantstats = "*"
 yahooquery = "*"
 ipython = "*"
+exceptiongroup = "*"
 
 [dev-packages]
 
