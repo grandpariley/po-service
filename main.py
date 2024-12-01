@@ -69,7 +69,7 @@ async def batch():
 async def batch():
     if await db.arch2_portfolios_exist():
         return {'status': 'READY'}
-    if threads['batch'].is_alive():
+    if 'batch' in threads.keys() and threads['batch'].is_alive():
         return {'status': 'PENDING'}
     return {'status': 'ERROR'}
 
