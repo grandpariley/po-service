@@ -67,7 +67,7 @@ async def batch():
 
 @app.get("/api/v1/batch/status")
 async def batch():
-    if db.arch2_portfolios_exist():
+    if await db.arch2_portfolios_exist():
         return {'status': 'READY'}
     if threads['batch'].is_alive():
         return {'status': 'PENDING'}
