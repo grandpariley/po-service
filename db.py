@@ -69,3 +69,7 @@ async def insert_arch2_portfolios(solutions):
 
 async def get_arch2_portfolios():
     return await find_all(arch2_portfolio.find(None))
+
+
+async def arch2_portfolios_exist():
+    return await arch2_portfolio.count_documents(None) > 0

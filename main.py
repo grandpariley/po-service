@@ -1,7 +1,6 @@
 import asyncio
 import os
 import threading
-from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -18,14 +17,7 @@ from pomatch.pkg.weights import get_weights
 load_dotenv()
 threads = {}
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await arch2()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,6 +56,22 @@ async def get_portfolio_weights(portfolio_id):
     all_weights = get_weights(get_responses(all_responses))
     weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
     return weights
+
+
+@app.post("/api/v1/batch")
+async def batch():
+    threads['batch'] = threading.Thread(target=arch2, daemon=True)
+    threads['batch'].start()
+    return {'status': 'PENDING'}
+
+
+@app.get("/api/v1/batch/status")
+async def batch():
+    if db.arch2_portfolios_exist():
+        return {'status': 'READY'}
+    if threads['batch'].is_alive():
+        return {'status': 'PENDING'}
+    return {'status': 'ERROR'}
 
 
 @app.post("/api/v1/survey")
