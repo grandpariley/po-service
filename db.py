@@ -72,4 +72,4 @@ async def get_arch2_portfolios():
 
 
 async def arch2_portfolios_exist():
-    return await arch2_portfolio.count_documents(None) > 0
+    return await arch2_portfolio.count_documents({}) > 0
