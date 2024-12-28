@@ -1,18 +1,18 @@
 services:
-  po-service-container:
+  api:
     build: .
     env_file: ".env"
     ports:
-      - "2736:80"
+      - "80:80"
     restart: always
 
   https-portal:
     image: steveltn/https-portal:1
     ports:
       - '80:80'
-      - '443:80'
+      - '443:443'
     links:
       - po-service-container
     restart: always
     environment:
-      DOMAINS: 'api.rileyherman.ca-> http://localhost:80'
+      DOMAINS: 'api.rileyherman.ca-> http://api:80'
