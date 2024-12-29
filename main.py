@@ -28,10 +28,17 @@ app.add_middleware(
 )
 
 
-def async_to_sync(func, *args):
+def arch2_sync():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(func(*args))
+    loop.run_until_complete(arch2())
+    loop.close()
+
+
+def arch1_sync(portfolio_id):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(portfolio_optimization(portfolio_id))
     loop.close()
 
 
@@ -67,7 +74,7 @@ async def get_portfolio_weights(portfolio_id):
 
 @app.post("/api/v1/batch")
 async def batch():
-    threads['batch'] = threading.Thread(target=lambda: async_to_sync(arch2), daemon=True)
+    threads['batch'] = threading.Thread(target=arch2_sync, daemon=True)
     threads['batch'].start()
     return {'status': 'PENDING'}
 
@@ -84,7 +91,7 @@ async def batch():
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    threads[portfolio_id] = threading.Thread(target=lambda: async_to_sync(portfolio_optimization, portfolio_id), args=(portfolio_id,), daemon=True)
+    threads[portfolio_id] = threading.Thread(target=lambda: arch1_sync(portfolio_id), daemon=True)
     threads[portfolio_id].start()
     return {'portfolio_id': portfolio_id}
 
