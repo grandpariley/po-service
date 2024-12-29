@@ -91,7 +91,7 @@ async def batch():
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    threads[portfolio_id] = threading.Thread(target=lambda: arch1_sync(portfolio_id), daemon=True)
+    threads[portfolio_id] = threading.Thread(target=arch1_sync, args=(portfolio_id,), daemon=True)
     threads[portfolio_id].start()
     return {'portfolio_id': portfolio_id}
 
