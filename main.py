@@ -57,7 +57,7 @@ async def get_matched_portfolio(portfolio_id):
 
 
 async def portfolio_optimization(portfolio_id):
-    weights = asyncio.run(get_portfolio_weights(portfolio_id))
+    weights = await get_portfolio_weights(portfolio_id)
     solutions = await po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
     })
