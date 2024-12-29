@@ -16,3 +16,4 @@ services:
     restart: always
     environment:
       DOMAINS: 'api.rileyherman.ca-> http://api:80'
+      STAGE: 'production'
