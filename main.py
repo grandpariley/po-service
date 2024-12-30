@@ -71,6 +71,7 @@ async def is_ready(task_id):
 
 @app.route("/api/v1/batch", methods=["POST"])
 def batch():
+    Log.log("batch")
     tasks[BATCH_TASK_ID] = loop.create_task(arch2(), name=BATCH_TASK_ID)
     tasks[BATCH_TASK_ID].add_done_callback(functools.partial(task_done_callback, BATCH_TASK_ID))
     return jsonify({'status': 'PENDING'})
@@ -83,6 +84,7 @@ def batch_status():
 
 @app.route("/api/v1/portfolio/<string:portfolio_id>/status")
 def status(portfolio_id):
+    Log.log("status: " + portfolio_id)
     if portfolio_id not in tasks.keys():
         return flask.Response(
             "task not found",
@@ -105,6 +107,7 @@ def status(portfolio_id):
 
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
+    Log.log("survey: " + request.json)
     portfolio_id = loop.run_until_complete(
         db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
     tasks[portfolio_id] = loop.create_task(portfolio_optimization(portfolio_id), name=portfolio_id)
@@ -114,6 +117,7 @@ def survey():
 
 @app.route("/api/v1/portfolio/<string:portfolio_id>")
 def portfolio(portfolio_id):
+    Log.log("survey status: " + portfolio_id)
     matched_portfolio = loop.run_until_complete(get_matched_portfolio(portfolio_id))
     custom_portfolios = loop.run_until_complete(db.get_portfolio(portfolio_id))
     matched_portfolio.pop('_id')
