@@ -1,6 +1,6 @@
 import asyncio
+import functools
 import os
-import threading
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -15,7 +15,8 @@ from pomatch.pkg.response import Response, get_responses
 from pomatch.pkg.weights import get_weights
 
 load_dotenv()
-threads = {}
+BATCH_TASK_ID = 'batch'
+tasks = {}
 
 app = FastAPI()
 
@@ -72,39 +73,50 @@ async def get_portfolio_weights(portfolio_id):
     return weights
 
 
+def task_done_callback(task_id, _):
+    tasks.pop(task_id, None)
+
+
+async def is_ready(task_id):
+    return (task_id == BATCH_TASK_ID and await db.arch2_portfolios_exist()) or \
+        (task_id == BATCH_TASK_ID and await db.portfolio_exists(task_id))
+
+
+async def get_status_of_task(task_id):
+    if task_id not in tasks.keys():
+        raise HTTPException(status_code=404, detail="Item not found")
+    if not tasks[task_id].done():
+        return {'status': 'PENDING'}
+    if await is_ready(task_id):
+        return {'status': 'READY'}
+    if tasks[task_id].cancelled():
+        raise HTTPException(status_code=500, detail="Cancelled task")
+    raise HTTPException(status_code=500, detail=str(tasks[task_id].exception()))
+
+
 @app.post("/api/v1/batch")
 async def batch():
-    threads['batch'] = threading.Thread(target=arch2_sync, daemon=True)
-    threads['batch'].start()
+    tasks[BATCH_TASK_ID] = asyncio.create_task(arch2(), name=BATCH_TASK_ID)
+    tasks[BATCH_TASK_ID].add_done_callback(functools.partial(task_done_callback, BATCH_TASK_ID))
     return {'status': 'PENDING'}
 
 
 @app.get("/api/v1/batch/status")
-async def batch():
-    if await db.arch2_portfolios_exist():
-        return {'status': 'READY'}
-    if 'batch' in threads.keys() and threads['batch'].is_alive():
-        return {'status': 'PENDING'}
-    return {'status': 'ERROR'}
+async def batch_status():
+    return await get_status_of_task(BATCH_TASK_ID)
+
+
+@app.get("/api/v1/portfolio/{portfolio_id}/status")
+async def status(portfolio_id: str):
+    return await get_status_of_task(portfolio_id)
 
 
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response):
     portfolio_id = await db.insert_survey(survey_result)
-    threads[portfolio_id] = threading.Thread(target=arch1_sync, args=(portfolio_id,), daemon=True)
-    threads[portfolio_id].start()
+    tasks[portfolio_id] = asyncio.create_task(arch1_sync(portfolio_id), name=portfolio_id)
+    tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
     return {'portfolio_id': portfolio_id}
-
-
-@app.get("/api/v1/portfolio/{portfolio_id}/status")
-async def status(portfolio_id: str):
-    if portfolio_id not in threads.keys():
-        raise HTTPException(status_code=404, detail="Item not found")
-    if await db.portfolio_exists(portfolio_id):
-        return {'status': 'READY'}
-    if threads[portfolio_id].is_alive():
-        return {'status': 'PENDING'}
-    return {'status': 'ERROR'}
 
 
 @app.get("/api/v1/portfolio/{portfolio_id}")
