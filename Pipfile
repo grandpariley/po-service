@@ -17,6 +17,7 @@ flask-restful = "*"
 flask-cors = "*"
 gunicorn = "*"
 pydantic = "*"
+pika = "*"
 
 [dev-packages]
 

@@ -1,5 +1,4 @@
 import asyncio
-import functools
 import os
 import flask
 
@@ -9,6 +8,7 @@ from flask_cors import CORS
 
 import db
 import po.main
+import queue
 from po.match import match_portfolio
 from po.pkg.log import Log
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
@@ -18,8 +18,6 @@ from pomatch.pkg.weights import get_weights
 
 load_dotenv()
 BATCH_TASK_ID = 'batch'
-tasks = {}
-loop = asyncio.new_event_loop()
 app = flask.Flask(__name__)
 cors = CORS(app, resource={
     r"/*": {
@@ -28,8 +26,14 @@ cors = CORS(app, resource={
 })
 
 
-def task_done_callback(task_id, _):
-    tasks.pop(task_id, None)
+def listen(portfolio_id):
+    if BATCH_TASK_ID == portfolio_id:
+        asyncio.run(arch2())
+    else:
+        asyncio.run(portfolio_optimization(portfolio_id))
+
+
+queue.register_listener(listen)
 
 
 async def arch2():
@@ -72,9 +76,9 @@ async def is_ready(task_id):
 @app.route("/api/v1/batch", methods=["POST"])
 def batch():
     Log.log("batch")
-    tasks[BATCH_TASK_ID] = loop.create_task(arch2(), name=BATCH_TASK_ID)
-    tasks[BATCH_TASK_ID].add_done_callback(functools.partial(task_done_callback, BATCH_TASK_ID))
-    return jsonify({'status': 'PENDING'})
+    asyncio.run(db.insert_queue(BATCH_TASK_ID))
+    queue.publish(BATCH_TASK_ID)
+    return batch_status()
 
 
 @app.route("/api/v1/batch/status")
@@ -85,32 +89,20 @@ def batch_status():
 @app.route("/api/v1/portfolio/<string:portfolio_id>/status")
 def status(portfolio_id):
     Log.log("status: " + portfolio_id)
-    if portfolio_id not in tasks.keys():
+    s = asyncio.run(db.get_queue(portfolio_id))
+    if not s:
         return flask.Response(
             "task not found",
             status=404
         )
-    if not tasks[portfolio_id].done():
-        return jsonify({'status': 'PENDING'})
-    if asyncio.run(is_ready(portfolio_id)):
-        return jsonify({'status': 'READY'})
-    if tasks[portfolio_id].cancelled():
-        return flask.Response(
-            "task cancelled",
-            status=500
-        )
-    return flask.Response(
-        str(tasks[portfolio_id].exception()),
-        status=500
-    )
+    return jsonify(s)
 
 
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
     Log.log("survey: " + request.json)
     portfolio_id = asyncio.run(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
-    tasks[portfolio_id] = loop.create_task(portfolio_optimization(portfolio_id), name=portfolio_id)
-    tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
+    queue.publish(portfolio_id)
     return jsonify({'portfolio_id': portfolio_id})
 
 

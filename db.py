@@ -15,6 +15,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
 portfolio = client.po.get_collection('portfolio')
 arch2_portfolio = client.po.get_collection('arch2_portfolio')
 survey = client.po.get_collection('survey')
+queue = client.po.get_collection('queue')
 client.get_io_loop = asyncio.get_running_loop
 
 
@@ -73,3 +74,15 @@ async def get_arch2_portfolios():
 
 async def arch2_portfolios_exist():
     return await arch2_portfolio.count_documents({}) > 0
+
+
+async def insert_queue(portfolio_id):
+    await queue.insert_one({"portfolio_id": portfolio_id, "status": "PUBLISHED"})
+
+
+async def get_queue(portfolio_id):
+    return await queue.find_one({"portfolio_id": portfolio_id})
+
+
+async def update_queue(portfolio_id, status):
+    await queue.replace_one({"portfolio_id": portfolio_id}, {"status": status})

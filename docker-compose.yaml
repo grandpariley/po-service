@@ -6,6 +6,17 @@ services:
       - '2736'
     restart: always
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
   https-portal:
     image: steveltn/https-portal:1
     ports:
