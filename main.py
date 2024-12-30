@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 import db
 import po.main
-import queue
+import queue_broker
 from po.match import match_portfolio
 from po.pkg.log import Log
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
@@ -33,7 +33,7 @@ def listen(portfolio_id):
         asyncio.run(portfolio_optimization(portfolio_id))
 
 
-queue.register_listener(listen)
+queue_broker.register_listener(listen)
 
 
 async def arch2():
@@ -77,7 +77,7 @@ async def is_ready(task_id):
 def batch():
     Log.log("batch")
     asyncio.run(db.insert_queue(BATCH_TASK_ID))
-    queue.publish(BATCH_TASK_ID)
+    queue_broker.publish(BATCH_TASK_ID)
     return batch_status()
 
 
@@ -102,7 +102,7 @@ def status(portfolio_id):
 def survey():
     Log.log("survey: " + request.json)
     portfolio_id = asyncio.run(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
-    queue.publish(portfolio_id)
+    queue_broker.publish(portfolio_id)
     return jsonify({'portfolio_id': portfolio_id})
 
 
