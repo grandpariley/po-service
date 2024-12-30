@@ -92,7 +92,7 @@ def status(portfolio_id):
         )
     if not tasks[portfolio_id].done():
         return jsonify({'status': 'PENDING'})
-    if loop.run_until_complete(is_ready(portfolio_id)):
+    if asyncio.run(is_ready(portfolio_id)):
         return jsonify({'status': 'READY'})
     if tasks[portfolio_id].cancelled():
         return flask.Response(
@@ -108,8 +108,7 @@ def status(portfolio_id):
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
     Log.log("survey: " + request.json)
-    portfolio_id = loop.run_until_complete(
-        db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
+    portfolio_id = asyncio.run(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
     tasks[portfolio_id] = loop.create_task(portfolio_optimization(portfolio_id), name=portfolio_id)
     tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
     return jsonify({'portfolio_id': portfolio_id})
@@ -118,11 +117,7 @@ def survey():
 @app.route("/api/v1/portfolio/<string:portfolio_id>")
 def portfolio(portfolio_id):
     Log.log("survey status: " + portfolio_id)
-    matched_portfolio = loop.run_until_complete(get_matched_portfolio(portfolio_id))
-    custom_portfolios = loop.run_until_complete(db.get_portfolio(portfolio_id))
+    matched_portfolio = asyncio.run(get_matched_portfolio(portfolio_id))
+    custom_portfolios = asyncio.run(db.get_portfolio(portfolio_id))
     matched_portfolio.pop('_id')
     return jsonify(custom_portfolios['portfolio'] + [matched_portfolio])
-
-
-if __name__ == '__main__':
-    app.run(port=2736, debug=True)
