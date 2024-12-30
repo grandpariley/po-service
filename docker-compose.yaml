@@ -13,18 +13,8 @@ services:
       - '443:443'
     links:
       - api
-      - rabbitmq
     restart: always
     environment:
-      DOMAINS: 'api.rileyherman.ca-> http://api:2736, api.rileyherman.ca:5672 -> http://rabbitmq:5672'
+      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
   #      STAGE: 'production'
 
-
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3-management
-    restart: unless-stopped
-    ports:
-      - '5672:5672'
-      - '2735:15672'
-    env_file: ".rabbitmq.env"
