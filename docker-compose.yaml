@@ -6,6 +6,8 @@ services:
     ports:
       - '2736'
     restart: always
+    depends_on:
+      - rabbitmq
 
   rabbitmq:
     container_name: po-rabbitmq
