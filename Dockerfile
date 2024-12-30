@@ -8,4 +8,4 @@ COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
 COPY ./start.sh /code/
 RUN chmod +x /code/start.sh
-CMD ["./start.sh"]
+CMD ./start.sh
