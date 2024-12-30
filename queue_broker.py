@@ -7,7 +7,7 @@ QUEUE_NAME = "po"
 
 
 def publish(message):
-    # rabbitmq.publish(QUEUE_NAME, message)
+    rabbitmq.publish(QUEUE_NAME, message)
     Log.log("Sent message: " + message)
 
 
@@ -16,14 +16,14 @@ def register_listener(func):
         Log.log("Received message: " + body)
         func(body)
 
-    # rabbitmq.consume(QUEUE_NAME, callback)
+    rabbitmq.consume(QUEUE_NAME, callback)
 
 
 class RabbitMQ:
     def __init__(self):
         self.user = os.getenv('RABBITMQ_USER', 'user')
         self.password = os.getenv('RABBITMQ_PASSWORD', 'password')
-        self.host = os.getenv('RABBITMQ_HOST', 'po-rabbitmq')
+        self.host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
@@ -58,4 +58,4 @@ class RabbitMQ:
                                    ))
 
 
-# rabbitmq = RabbitMQ()
+rabbitmq = RabbitMQ()
