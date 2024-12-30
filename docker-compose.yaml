@@ -33,4 +33,4 @@ services:
     restart: unless-stopped
     environment:
       DOMAINS: 'api.rileyherman.ca-> http://api:2736'
-      STAGE: 'production'
+#      STAGE: 'production'
