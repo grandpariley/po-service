@@ -1,6 +1,5 @@
 services:
   api:
-    container_name: po-api
     build: .
     env_file: ".env"
     ports:
@@ -32,5 +31,5 @@ services:
       - api
     restart: unless-stopped
     environment:
-      DOMAINS: 'api.rileyherman.ca-> http://po-api:2736'
+      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
 #      STAGE: 'production'

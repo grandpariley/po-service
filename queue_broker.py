@@ -1,11 +1,10 @@
 import pika
 import os
 
-from pika.exceptions import AMQPConnectionError
-
 from po.pkg.log import Log
 
 QUEUE_NAME = "po"
+
 
 def publish(message):
     rabbitmq.publish(QUEUE_NAME, message)
@@ -57,5 +56,6 @@ class RabbitMQ:
                                    properties=pika.BasicProperties(
                                        delivery_mode=2,
                                    ))
+
 
 rabbitmq = RabbitMQ()
