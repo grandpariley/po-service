@@ -17,7 +17,7 @@ def register_listener(func):
         Log.log("Received message: " + body)
         func(body)
 
-    # rabbitmq.consume(QUEUE_NAME, callback)
+    rabbitmq.consume(QUEUE_NAME, callback)
 
 
 class RabbitMQ:
