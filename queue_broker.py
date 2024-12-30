@@ -28,10 +28,7 @@ class RabbitMQ:
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
-        try:
-            self.connect()
-        except AMQPConnectionError as e:
-            print(e)
+        self.connect()
 
     def connect(self):
         credentials = pika.PlainCredentials(self.user, self.password)
