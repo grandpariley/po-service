@@ -26,7 +26,10 @@ class RabbitMQ:
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
-        self.connect()
+        try:
+            self.connect()
+        except Exception as e:
+            Log.log(e)
 
     def connect(self):
         credentials = pika.PlainCredentials(self.user, self.password)
