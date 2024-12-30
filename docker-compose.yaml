@@ -5,7 +5,7 @@ services:
     env_file: ".env"
     ports:
       - '2736'
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       - rabbitmq
     links:
@@ -14,18 +14,13 @@ services:
   rabbitmq:
     container_name: po-rabbitmq
     image: rabbitmq:3-management
-    restart: always
+    restart: unless-stopped
     ports:
       - '5672:5672'
       - '2735:15672'
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
 #  https-portal:
 #    container_name: po-https
@@ -35,7 +30,7 @@ services:
 #      - '443:443'
 #    links:
 #      - api
-#    restart: always
+#    restart: unless-stopped
 #    environment:
 #      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
 #      STAGE: 'production'
