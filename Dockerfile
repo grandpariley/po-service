@@ -7,4 +7,4 @@ COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
 EXPOSE 8000
-CMD ["pipenv", "run", "gunicorn", "-w", "4", "-b", "0.0.0.0:2736", "main:app"]
+CMD ["pipenv", "run", "gunicorn", "-w", "4", "-b", "0.0.0.0:2736", "--access-logfile", "-", "main:app"]
