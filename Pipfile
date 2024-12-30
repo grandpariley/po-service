@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = {extras = ["standard"], version = "*"}
 pymongo = "*"
 python-dotenv = "*"
 motor = "*"
@@ -14,6 +13,8 @@ quantstats = "*"
 yahooquery = "*"
 ipython = "*"
 exceptiongroup = "*"
+flask-restful = "*"
+flask-cors = "*"
 
 [dev-packages]
 

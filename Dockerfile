@@ -6,4 +6,4 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-CMD ["pipenv", "run", "fastapi", "run", "main.py", "--port", "80"]
+CMD ["pipenv", "run", "python3", "run", "main.py"]

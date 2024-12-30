@@ -1,10 +1,12 @@
 import asyncio
 import functools
 import os
+import flask
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from starlette.middleware.cors import CORSMiddleware
+from flask import jsonify, request
+from flask_cors import CORS
+from flask_restful import Api
 
 import db
 import po.main
@@ -17,16 +19,20 @@ from pomatch.pkg.weights import get_weights
 
 load_dotenv()
 BATCH_TASK_ID = 'batch'
+tasks = {}
+loop = asyncio.get_event_loop()
+app = flask.Flask(__name__)
+cors = CORS(app, resource={
+    r"/*": {
+        "origins": os.environ["FRONTEND_ORIGINS"].split(',')
+    }
+})
+api = Api(app)
 
-app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=os.environ["FRONTEND_ORIGINS"].split(','),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def task_done_callback(task_id, _):
+    tasks.pop(task_id, None)
+
 
 async def arch2():
     Log.log("arch 2 let's go!")
@@ -65,38 +71,55 @@ async def is_ready(task_id):
         (task_id == BATCH_TASK_ID and await db.portfolio_exists(task_id))
 
 
-async def get_status_of_task(task_id):
-    if await is_ready(task_id):
-        return {'status': 'READY'}
-    return {'status': 'PENDING'}
+@app.route("/api/v1/batch", methods=["POST"])
+def batch():
+    tasks[BATCH_TASK_ID] = loop.create_task(arch2(), name=BATCH_TASK_ID)
+    tasks[BATCH_TASK_ID].add_done_callback(functools.partial(task_done_callback, BATCH_TASK_ID))
+    return jsonify({'status': 'PENDING'})
 
 
-@app.post("/api/v1/batch")
-async def batch(background_tasks: BackgroundTasks):
-    background_tasks.add_task(arch2)
-    return {'status': 'PENDING'}
+@app.route("/api/v1/batch/status")
+def batch_status():
+    return status(BATCH_TASK_ID)
 
 
-@app.get("/api/v1/batch/status")
-async def batch_status():
-    return await get_status_of_task(BATCH_TASK_ID)
+@app.route("/api/v1/portfolio/<str:portfolio_id>/status")
+def status(portfolio_id):
+    if portfolio_id not in tasks.keys():
+        return flask.Response(
+            "task not found",
+            status=404
+        )
+    if not tasks[portfolio_id].done():
+        return jsonify({'status': 'PENDING'})
+    if loop.run_until_complete(is_ready(portfolio_id)):
+        return jsonify({'status': 'READY'})
+    if tasks[portfolio_id].cancelled():
+        return flask.Response(
+            "task cancelled",
+            status=500
+        )
+    return flask.Response(
+        str(tasks[portfolio_id].exception()),
+        status=500
+    )
 
 
-@app.get("/api/v1/portfolio/{portfolio_id}/status")
-async def status(portfolio_id: str):
-    return await get_status_of_task(portfolio_id)
+@app.route("/api/v1/survey", methods=["POST"])
+def survey():
+    portfolio_id = loop.run_until_complete(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
+    tasks[portfolio_id] = loop.create_task(portfolio_optimization(portfolio_id), name=portfolio_id)
+    tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
+    return jsonify({'portfolio_id': portfolio_id})
 
 
-@app.post("/api/v1/survey")
-async def survey(survey_result: Response, background_tasks: BackgroundTasks):
-    portfolio_id = await db.insert_survey(survey_result)
-    background_tasks.add_task(portfolio_optimization, portfolio_id)
-    return {'portfolio_id': portfolio_id}
-
-
-@app.get("/api/v1/portfolio/{portfolio_id}")
-async def portfolio(portfolio_id: str):
-    matched_portfolio = await get_matched_portfolio(portfolio_id)
-    custom_portfolios = await db.get_portfolio(portfolio_id)
+@app.route("/api/v1/portfolio/<str:portfolio_id>")
+def portfolio(portfolio_id):
+    matched_portfolio = loop.run_until_complete(get_matched_portfolio(portfolio_id))
+    custom_portfolios = loop.run_until_complete(db.get_portfolio(portfolio_id))
     matched_portfolio.pop('_id')
-    return custom_portfolios['portfolio'] + [matched_portfolio]
+    return jsonify(custom_portfolios['portfolio'] + [matched_portfolio])
+
+
+if __name__ == '__main__':
+    app.run(port=80)
