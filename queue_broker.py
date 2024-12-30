@@ -15,7 +15,7 @@ def register_listener(func):
         Log.log("Received message: " + body)
         func(body)
 
-    rabbitmq.consume(QUEUE_NAME, callback)
+    # rabbitmq.consume(QUEUE_NAME, callback)
 
 
 class RabbitMQ:
@@ -29,7 +29,7 @@ class RabbitMQ:
         try:
             self.connect()
         except Exception as e:
-            Log.log(e)
+            print(e)
 
     def connect(self):
         credentials = pika.PlainCredentials(self.user, self.password)
