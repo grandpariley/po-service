@@ -3,7 +3,7 @@ services:
     build: .
     env_file: ".env"
     ports:
-      - '8000:8000'
+      - '2736'
     restart: always
 
   https-portal:
@@ -15,5 +15,5 @@ services:
       - api
     restart: always
     environment:
-      DOMAINS: 'api.rileyherman.ca-> http://api:8000'
+      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
       STAGE: 'production'
