@@ -6,7 +6,6 @@ import flask
 from dotenv import load_dotenv
 from flask import jsonify, request
 from flask_cors import CORS
-from flask_restful import Api
 
 import db
 import po.main
@@ -20,14 +19,13 @@ from pomatch.pkg.weights import get_weights
 load_dotenv()
 BATCH_TASK_ID = 'batch'
 tasks = {}
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 app = flask.Flask(__name__)
 cors = CORS(app, resource={
     r"/*": {
         "origins": os.environ["FRONTEND_ORIGINS"].split(',')
     }
 })
-api = Api(app)
 
 
 def task_done_callback(task_id, _):
@@ -83,7 +81,7 @@ def batch_status():
     return status(BATCH_TASK_ID)
 
 
-@app.route("/api/v1/portfolio/<str:portfolio_id>/status")
+@app.route("/api/v1/portfolio/<string:portfolio_id>/status")
 def status(portfolio_id):
     if portfolio_id not in tasks.keys():
         return flask.Response(
@@ -107,13 +105,14 @@ def status(portfolio_id):
 
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
-    portfolio_id = loop.run_until_complete(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
+    portfolio_id = loop.run_until_complete(
+        db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
     tasks[portfolio_id] = loop.create_task(portfolio_optimization(portfolio_id), name=portfolio_id)
     tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
     return jsonify({'portfolio_id': portfolio_id})
 
 
-@app.route("/api/v1/portfolio/<str:portfolio_id>")
+@app.route("/api/v1/portfolio/<string:portfolio_id>")
 def portfolio(portfolio_id):
     matched_portfolio = loop.run_until_complete(get_matched_portfolio(portfolio_id))
     custom_portfolios = loop.run_until_complete(db.get_portfolio(portfolio_id))
@@ -122,4 +121,4 @@ def portfolio(portfolio_id):
 
 
 if __name__ == '__main__':
-    app.run(port=80)
+    app.run(port=2736, debug=True)

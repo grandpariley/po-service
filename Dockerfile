@@ -6,4 +6,4 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-CMD ["pipenv", "run", "python3", "run", "main.py"]
+CMD ["pipenv", "run", "gunicorn", "-w", "4", "'main:app'"]

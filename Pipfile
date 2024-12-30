@@ -15,6 +15,7 @@ ipython = "*"
 exceptiongroup = "*"
 flask-restful = "*"
 flask-cors = "*"
+gunicorn = "*"
 
 [dev-packages]
 
