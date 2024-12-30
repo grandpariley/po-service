@@ -6,4 +6,6 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-CMD ["sleep", "60", "&&", "pipenv", "run", "gunicorn", "-w", "1", "-b", "0.0.0.0:2736", "--access-logfile", "-", "--error-logfile", "-", "main:app"]
+COPY ./start.sh /code/
+RUN chmod +x /code/start.sh
+CMD ["./start.sh"]
