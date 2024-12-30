@@ -3,7 +3,7 @@ import functools
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
 
 import db
@@ -16,7 +16,6 @@ from pomatch.pkg.weights import get_weights
 
 load_dotenv()
 BATCH_TASK_ID = 'batch'
-tasks = {}
 
 app = FastAPI()
 
@@ -73,31 +72,20 @@ async def get_portfolio_weights(portfolio_id):
     return weights
 
 
-def task_done_callback(task_id, _):
-    tasks.pop(task_id, None)
-
-
 async def is_ready(task_id):
     return (task_id == BATCH_TASK_ID and await db.arch2_portfolios_exist()) or \
         (task_id == BATCH_TASK_ID and await db.portfolio_exists(task_id))
 
 
 async def get_status_of_task(task_id):
-    if task_id not in tasks.keys():
-        raise HTTPException(status_code=404, detail="Item not found")
-    if not tasks[task_id].done():
-        return {'status': 'PENDING'}
     if await is_ready(task_id):
         return {'status': 'READY'}
-    if tasks[task_id].cancelled():
-        raise HTTPException(status_code=500, detail="Cancelled task")
-    raise HTTPException(status_code=500, detail=str(tasks[task_id].exception()))
+    return {'status': 'PENDING'}
 
 
 @app.post("/api/v1/batch")
-async def batch():
-    tasks[BATCH_TASK_ID] = asyncio.create_task(arch2(), name=BATCH_TASK_ID)
-    tasks[BATCH_TASK_ID].add_done_callback(functools.partial(task_done_callback, BATCH_TASK_ID))
+async def batch(background_tasks: BackgroundTasks):
+    background_tasks.add_task(arch2)
     return {'status': 'PENDING'}
 
 
@@ -112,10 +100,9 @@ async def status(portfolio_id: str):
 
 
 @app.post("/api/v1/survey")
-async def survey(survey_result: Response):
+async def survey(survey_result: Response, background_tasks: BackgroundTasks):
     portfolio_id = await db.insert_survey(survey_result)
-    tasks[portfolio_id] = asyncio.create_task(arch1_sync(portfolio_id), name=portfolio_id)
-    tasks[portfolio_id].add_done_callback(functools.partial(task_done_callback, portfolio_id))
+    background_tasks.add_task(arch1_sync, portfolio_id)
     return {'portfolio_id': portfolio_id}
 
 
