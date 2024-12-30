@@ -1,5 +1,6 @@
 services:
   api:
+    container_name: po-api
     build: .
     env_file: ".env"
     links:
@@ -9,6 +10,7 @@ services:
     restart: always
 
   rabbitmq:
+    container_name: po-rabbitmq
     image: rabbitmq:3-management
     restart: always
     ports:
@@ -19,6 +21,7 @@ services:
       RABBITMQ_DEFAULT_PASS: password
 
   https-portal:
+    container_name: po-https
     image: steveltn/https-portal:1
     ports:
       - '80:80'
