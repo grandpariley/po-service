@@ -22,15 +22,15 @@ services:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: password
 
-#  https-portal:
-#    container_name: po-https
-#    image: steveltn/https-portal:1
-#    ports:
-#      - '80:80'
-#      - '443:443'
-#    links:
-#      - api
-#    restart: unless-stopped
-#    environment:
-#      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
-#      STAGE: 'production'
+  https-portal:
+    container_name: po-https
+    image: steveltn/https-portal:1
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - api
+    restart: unless-stopped
+    environment:
+      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
+      STAGE: 'production'
