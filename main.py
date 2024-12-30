@@ -16,6 +16,8 @@ from po.pkg.problem.builder import default_portfolio_optimization_problem_by_wei
 from pomatch.pkg.response import Response, get_responses
 from pomatch.pkg.weights import get_weights
 
+Log.log("starting...")
+print("starting..........")
 load_dotenv()
 BATCH_TASK_ID = 'batch'
 app = flask.Flask(__name__)
