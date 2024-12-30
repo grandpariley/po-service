@@ -19,13 +19,13 @@ services:
 #      STAGE: 'production'
 
 
-  rabbitmq:
-    container_name: po-rabbitmq
-    image: rabbitmq:3-management
-    restart: unless-stopped
-    ports:
-      - '5672:5672'
-      - '2735:15672'
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
+#  rabbitmq:
+#    container_name: po-rabbitmq
+#    image: rabbitmq:3-management
+#    restart: unless-stopped
+#    ports:
+#      - '5672:5672'
+#      - '2735:15672'
+#    environment:
+#      RABBITMQ_DEFAULT_USER: user
+#      RABBITMQ_DEFAULT_PASS: password
