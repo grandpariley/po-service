@@ -1,6 +1,8 @@
 import pika
 import os
 
+from pika.exceptions import AMQPConnectionError
+
 from po.pkg.log import Log
 
 QUEUE_NAME = "po"
@@ -26,10 +28,10 @@ class RabbitMQ:
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
-        # try:
-        self.connect()
-        # except Exception as e:
-        #     print(e)
+        try:
+            self.connect()
+        except AMQPConnectionError as e:
+            print(e)
 
     def connect(self):
         credentials = pika.PlainCredentials(self.user, self.password)
