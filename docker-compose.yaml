@@ -2,6 +2,8 @@ services:
   api:
     build: .
     env_file: ".env"
+    links:
+      - rabbitmq
     ports:
       - '2736'
     restart: always
