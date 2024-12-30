@@ -5,10 +5,9 @@ services:
     env_file: ".env"
     ports:
       - '2736'
-    restart: always
+    restart: on-failure
     depends_on:
-      rabbitmq:
-        condition: service_healthy
+      - rabbitmq
     links:
       - rabbitmq
 
