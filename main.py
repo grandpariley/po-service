@@ -9,6 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 import db
 import po.main
 from po.match import match_portfolio
+from po.pkg.log import Log
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
     default_portfolio_optimization_problem_arch_2
 from pomatch.pkg.response import Response, get_responses
@@ -27,22 +28,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-def arch2_sync():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(arch2())
-    loop.close()
-
-
-def arch1_sync(portfolio_id):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(portfolio_optimization(portfolio_id))
-    loop.close()
-
-
 async def arch2():
+    Log.log("arch 2 let's go!")
     await db.clear_arch2_portfolio()
     solutions = await po.main.main({
         'arch2': default_portfolio_optimization_problem_arch_2(),
@@ -57,6 +44,7 @@ async def get_matched_portfolio(portfolio_id):
 
 
 async def portfolio_optimization(portfolio_id):
+    Log.log("arch 1 let's go! " + portfolio_id)
     weights = await get_portfolio_weights(portfolio_id)
     solutions = await po.main.main({
         'arch1': default_portfolio_optimization_problem_by_weights(weights),
@@ -102,7 +90,7 @@ async def status(portfolio_id: str):
 @app.post("/api/v1/survey")
 async def survey(survey_result: Response, background_tasks: BackgroundTasks):
     portfolio_id = await db.insert_survey(survey_result)
-    background_tasks.add_task(arch1_sync, portfolio_id)
+    background_tasks.add_task(portfolio_optimization, portfolio_id)
     return {'portfolio_id': portfolio_id}
 
 
