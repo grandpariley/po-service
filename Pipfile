@@ -16,6 +16,7 @@ exceptiongroup = "*"
 flask-restful = "*"
 flask-cors = "*"
 gunicorn = "*"
+pydantic = "*"
 
 [dev-packages]
 

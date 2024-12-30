@@ -6,4 +6,5 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-CMD ["pipenv", "run", "gunicorn", "-w", "4", "'main:app'"]
+EXPOSE 8000
+CMD ["pipenv", "run", "gunicorn", "-w", "4", "main:app"]
