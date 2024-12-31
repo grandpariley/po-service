@@ -23,7 +23,7 @@ class RabbitMQ:
     def __init__(self):
         self.user = os.getenv('RABBITMQ_USER', 'user')
         self.password = os.getenv('RABBITMQ_PASSWORD', 'password')
-        self.host = os.getenv('RABBITMQ_HOST', 'localhost')
+        self.host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
