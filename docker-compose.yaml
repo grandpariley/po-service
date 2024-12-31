@@ -3,7 +3,7 @@ services:
     build: .
     env_file: ".env"
     ports:
-      - '2736'
+      - '2736:2736'
     restart: always
 
   rabbitmq:
