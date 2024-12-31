@@ -1,9 +1,0 @@
-services:
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3-management
-    restart: unless-stopped
-    ports:
-      - '5672:5672'
-      - '2735:15672'
-    env_file: ".rabbitmq.env"

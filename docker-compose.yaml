@@ -6,15 +6,24 @@ services:
       - '2736'
     restart: always
 
-  https-portal:
-    image: steveltn/https-portal:1
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    restart: unless-stopped
     ports:
-      - '80:80'
-      - '443:443'
-    links:
-      - api
-    restart: always
-    environment:
-      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
+      - '5672:5672'
+      - '2735:15672'
+    env_file: ".rabbitmq.env"
+
+#  https-portal:
+#    image: steveltn/https-portal:1
+#    ports:
+#      - '80:80'
+#      - '443:443'
+#    links:
+#      - api
+#    restart: always
+#    environment:
+#      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
   #      STAGE: 'production'
 
