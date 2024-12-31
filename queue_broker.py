@@ -27,6 +27,8 @@ class RabbitMQ:
         self.port = int(os.getenv('RABBITMQ_PORT', 5672))
         self.connection = None
         self.channel = None
+        print(os.getenv('RABBITMQ_HOST', 'localhost'))
+        print(os.getenv('RABBITMQ_PORT', '5672'))
         self.connect()
 
     def connect(self):
