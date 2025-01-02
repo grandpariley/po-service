@@ -13,7 +13,6 @@ services:
     ports:
       - '5672:5672'
       - '2735:15672'
-    env_file: ".rabbitmq.env"
 
 #  https-portal:
 #    image: steveltn/https-portal:1
