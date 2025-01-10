@@ -6,4 +6,6 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-CMD ["pipenv", "run", "python3", "main.py"]
+COPY ./main.sh /code/
+RUN chmod +x /code/main.sh
+CMD ./main.sh
