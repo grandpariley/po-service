@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./docker/helper
+      dockerfile: ./docker/helper/Dockerfile
     env_file: ".env"
     ports:
       - '2736:2736'
@@ -11,7 +11,7 @@ services:
   main:
     build:
       context: .
-      dockerfile: ./docker/main
+      dockerfile: ./docker/main/Dockerfile
     env_file: ".env"
     restart: unless-stopped
 
