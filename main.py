@@ -92,11 +92,7 @@ def batch():
 
 @app.route("/api/v1/batch/status")
 def batch_status():
-    return flask.Response(
-        "task not found",
-        status=404
-    )
-    # return status(BATCH_TASK_ID)
+    return status(BATCH_TASK_ID)
 
 
 @app.route("/api/v1/portfolio/<string:portfolio_id>/status")
