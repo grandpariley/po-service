@@ -15,7 +15,7 @@ def register_listener(func):
     def callback(ch, method, properties, body):
         Log.log("Received message: " + body)
         func(body)
-
+    Log.log("listening...")
     rabbitmq.consume(QUEUE_NAME, callback)
 
 
