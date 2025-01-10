@@ -1,10 +1,15 @@
 services:
-#  api:
-#    build: .
-#    env_file: ".env"
-#    ports:
-#      - '2736:2736'
-#    restart: unless-stopped
+  api:
+    build: docker-helper/.
+    env_file: ".env"
+    ports:
+      - '2736:2736'
+    restart: unless-stopped
+
+  main:
+    build: docker-main/.
+    env_file: ".env"
+    restart: unless-stopped
 
   rabbitmq:
     container_name: rabbitmq
@@ -15,15 +20,15 @@ services:
       - '5672:5672'
       - '15672:15672'
 
-#  https-portal:
-#    image: steveltn/https-portal:1
-#    ports:
-#      - '80:80'
-#      - '443:443'
-#    links:
-#      - api
-#    restart: always
-#    environment:
-#      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
-  #      STAGE: 'production'
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - api
+    restart: always
+    environment:
+      DOMAINS: 'api.rileyherman.ca-> http://api:2736'
+      STAGE: 'production'
 
