@@ -17,8 +17,9 @@ def publish(message):
 
 def register_listener(func):
     def callback(ch, method, properties, body):
-        Log.log("Received message: " + body)
-        func(body)
+        body_string = body.decode("utf-8")
+        Log.log("Received message: " + body_string)
+        func(body_string)
 
     Log.log("listening...")
     rabbitmq.consume(QUEUE_NAME, callback)
