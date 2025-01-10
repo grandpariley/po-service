@@ -9,7 +9,6 @@ from flask_cors import CORS
 
 import db
 import po.main
-import queue_broker
 from po.match import match_portfolio
 from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
     default_portfolio_optimization_problem_arch_2
@@ -27,7 +26,6 @@ cors = CORS(app, resource={
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
-app.logger.info("starting...")
 
 
 def listen(portfolio_id):
@@ -36,8 +34,12 @@ def listen(portfolio_id):
     else:
         asyncio.run(portfolio_optimization(portfolio_id))
 
-
+app.logger.info("connecting to rabbit....")
+import queue_broker
+app.logger.info("connected to rabbit!")
+app.logger.info("registering....")
 queue_broker.register_listener(listen)
+app.logger.info("registered!")
 
 
 async def arch2():
