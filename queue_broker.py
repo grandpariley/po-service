@@ -6,6 +6,10 @@ from po.pkg.log import Log
 QUEUE_NAME = "po"
 
 
+def create():
+    rabbitmq.create_queue(QUEUE_NAME)
+
+
 def publish(message):
     rabbitmq.publish(QUEUE_NAME, message)
     Log.log("Sent message: " + message)
@@ -15,6 +19,7 @@ def register_listener(func):
     def callback(ch, method, properties, body):
         Log.log("Received message: " + body)
         func(body)
+
     Log.log("listening...")
     rabbitmq.consume(QUEUE_NAME, callback)
 
@@ -34,7 +39,9 @@ class RabbitMQ:
         parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
         self.connection = pika.BlockingConnection(parameters)
         self.channel = self.connection.channel()
-        self.channel.queue_declare(queue=QUEUE_NAME)
+
+    def create_queue(self, queue_name):
+        self.channel.queue_declare(queue=queue_name)
 
     def close(self):
         if self.connection and not self.connection.is_closed:

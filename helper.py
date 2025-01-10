@@ -26,6 +26,9 @@ app.logger.info("connecting to rabbit....")
 import queue_broker
 
 app.logger.info("connected to rabbit!")
+app.logger.info("creating queue....")
+queue_broker.create()
+app.logger.info("created queue!")
 
 
 @app.route("/api/v1/health", methods=["GET"])
