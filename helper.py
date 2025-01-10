@@ -11,7 +11,7 @@ import db
 from pomatch.pkg.response import Response
 
 load_dotenv()
-
+HEALTH_CHECK_ID = 'health_check'
 BATCH_TASK_ID = 'batch'
 app = flask.Flask(__name__)
 cors = CORS(app, resource={
@@ -24,11 +24,14 @@ app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
 app.logger.info("connecting to rabbit....")
 import queue_broker
+
 app.logger.info("connected to rabbit!")
+
 
 @app.route("/api/v1/health", methods=["GET"])
 def health():
     app.logger.info("HEALTH CHECK")
+    queue_broker.publish(HEALTH_CHECK_ID)
     return jsonify({"status": "yup"})
 
 

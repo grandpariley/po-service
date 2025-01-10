@@ -14,10 +14,12 @@ from pomatch.pkg.weights import get_weights
 load_dotenv()
 
 BATCH_TASK_ID = 'batch'
-
+HEALTH_CHECK_ID = 'health_check'
 
 def listen(portfolio_id):
-    if BATCH_TASK_ID == portfolio_id:
+    if HEALTH_CHECK_ID == portfolio_id:
+        Log.log("healthy!")
+    elif BATCH_TASK_ID == portfolio_id:
         asyncio.run(arch2())
     else:
         asyncio.run(portfolio_optimization(portfolio_id))
