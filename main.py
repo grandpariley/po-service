@@ -77,6 +77,11 @@ async def is_ready(task_id):
         (task_id == BATCH_TASK_ID and await db.portfolio_exists(task_id))
 
 
+@app.route("/api/v1/health", methods=["GET"])
+def health():
+    app.logger.info("HEALTH CHECK")
+    return jsonify({"status": "yup"})
+
 @app.route("/api/v1/batch", methods=["POST"])
 def batch():
     app.logger.info("batch")
