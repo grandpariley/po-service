@@ -66,7 +66,8 @@ def status(portfolio_id):
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
     app.logger.info("survey: " + str(request.json))
-    portfolio_id = asyncio.run(db.insert_survey(Response.model_construct(None, values=flask.json.loads(request.data))))
+    portfolio_id = asyncio.run(db.insert_survey(Response.model_validate(request.json)))
+    asyncio.run(db.insert_queue(portfolio_id))
     queue_broker.publish(portfolio_id)
     return jsonify({'portfolio_id': portfolio_id})
 

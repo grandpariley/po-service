@@ -52,8 +52,14 @@ async def portfolio_optimization(portfolio_id):
 async def get_portfolio_weights(portfolio_id):
     all_responses = await db.get_surveys()
     all_weights = get_weights(get_responses(all_responses))
-    weights = next((weight for weight in all_weights if weight['portfolio_id'] == portfolio_id))
+    Log.log("1> " + str(all_weights))
+    Log.log("2> " + str(get_weights_by_portfolio_id(all_weights, portfolio_id)))
+    weights = get_weights_by_portfolio_id(all_weights, portfolio_id)
     return weights
+
+
+def get_weights_by_portfolio_id(all_weights, portfolio_id):
+    return [weight for weight in all_weights if weight['portfolio_id'] == portfolio_id][0]
 
 
 if __name__ == "__main__":
