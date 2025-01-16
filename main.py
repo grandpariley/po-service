@@ -62,10 +62,9 @@ def get_weights_by_portfolio_id(all_weights, portfolio_id):
     return [weight for weight in all_weights if weight['portfolio_id'] == portfolio_id][0]
 
 
-if __name__ == "__main__":
-    Log.log("connecting to rabbit....")
-    import queue_broker
+Log.log("connecting to rabbit....")
+import queue_broker
 
-    Log.log("connected to rabbit!")
-    Log.log("registering....")
-    queue_broker.register_listener(listen)
+Log.log("connected to rabbit!")
+Log.log("registering....")
+queue_broker.register_listener(listen)

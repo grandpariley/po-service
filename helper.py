@@ -60,15 +60,15 @@ def status(portfolio_id):
             "task not found",
             status=404
         )
-    return jsonify(s)
+    return jsonify({"portfolio_id": portfolio_id, "status": s['status']})
 
 
 @app.route("/api/v1/survey", methods=["POST"])
 def survey():
-    app.logger.info("survey: " + str(request.json))
     portfolio_id = asyncio.run(db.insert_survey(Response.model_validate(request.json)))
     asyncio.run(db.insert_queue(portfolio_id))
     queue_broker.publish(portfolio_id)
+    app.logger.info("created: " + portfolio_id)
     return jsonify({'portfolio_id': portfolio_id})
 
 
