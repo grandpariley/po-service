@@ -84,5 +84,14 @@ async def get_queue(portfolio_id):
     return await queue_status.find_one({"portfolio_id": portfolio_id})
 
 
-async def update_queue(portfolio_id, status):
-    await queue_status.replace_one({"portfolio_id": portfolio_id}, {"status": status})
+async def insert_queue_error(portfolio_id, e):
+    await queue_status.replace_one({"portfolio_id": portfolio_id},
+                                   {"portfolio_id": portfolio_id, "status": "ERROR", "error": str(e)})
+
+
+async def insert_queue_complete(portfolio_id):
+    await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "COMPLETE"})
+
+
+async def insert_queue_started(portfolio_id):
+    await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "STARTED"})

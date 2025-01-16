@@ -40,13 +40,18 @@ async def arch2():
 
 
 async def portfolio_optimization(portfolio_id):
-    weights = await get_portfolio_weights(portfolio_id)
-    solutions = await po.main.main({
-        'arch1': default_portfolio_optimization_problem_by_weights(weights),
-    })
-    for name in solutions.keys():
-        await db.insert_portfolio(portfolio_id, solutions[name])
-    await db.insert_portfolio(portfolio_id, get_matched_portfolio(portfolio_id))
+    try:
+        await db.insert_queue_started(portfolio_id)
+        weights = await get_portfolio_weights(portfolio_id)
+        solutions = await po.main.main({
+            'arch1': default_portfolio_optimization_problem_by_weights(weights),
+        })
+        for name in solutions.keys():
+            await db.insert_portfolio(portfolio_id, solutions[name])
+        await db.insert_portfolio(portfolio_id, get_matched_portfolio(portfolio_id))
+        await db.insert_queue_complete(portfolio_id)
+    except Exception as e:
+        await db.insert_queue_error(portfolio_id, e)
 
 
 async def get_portfolio_weights(portfolio_id):
