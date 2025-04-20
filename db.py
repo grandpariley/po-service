@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from po.pkg.problem.problem import problem_encoder_fn
 
 load_dotenv()
+BATCH_TASK_ID = 'batch'
 
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
 portfolio = client.po.get_collection('portfolio')
@@ -79,6 +80,8 @@ async def arch2_portfolios_exist():
 async def insert_queue(portfolio_id):
     await queue_status.insert_one({"portfolio_id": portfolio_id, "status": "PUBLISHED"})
 
+async def clear_batch_status():
+    await queue_status.delete_one({"portfolio_id": BATCH_TASK_ID})
 
 async def get_queue(portfolio_id):
     return await queue_status.find_one({"portfolio_id": portfolio_id})

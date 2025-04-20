@@ -41,6 +41,7 @@ def health():
 @app.route("/api/v1/batch", methods=["POST"])
 def batch():
     app.logger.info("batch")
+    asyncio.run(db.clear_batch_status())
     asyncio.run(db.insert_queue(BATCH_TASK_ID))
     queue_broker.publish(BATCH_TASK_ID)
     return batch_status()

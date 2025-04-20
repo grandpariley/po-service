@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 
 import db
 import po.main
+from arch2_main import arch2
 from po.match import match_portfolio
 from po.pkg.log import Log
-from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights, \
-    default_portfolio_optimization_problem_arch_2
+from po.pkg.problem.builder import default_portfolio_optimization_problem_by_weights
 from pomatch.pkg.response import get_responses
 from pomatch.pkg.weights import get_weights
 
@@ -29,14 +29,6 @@ async def get_matched_portfolio(portfolio_id):
     weights = await get_portfolio_weights(portfolio_id)
     solutions = await db.get_arch2_portfolios()
     return match_portfolio(weights, solutions)
-
-
-async def arch2():
-    await db.clear_arch2_portfolio()
-    solutions = await po.main.main({
-        'arch2': default_portfolio_optimization_problem_arch_2(),
-    })
-    await db.insert_arch2_portfolios(solutions['arch2'])
 
 
 async def portfolio_optimization(portfolio_id):
