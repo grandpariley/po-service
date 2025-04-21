@@ -8,6 +8,13 @@ services:
       - '2736:2736'
     restart: unless-stopped
 
+  arch2:
+    build:
+      context: .
+      dockerfile: ./docker/arch2/Dockerfile
+    env_file: ".env"
+    restart: unless-stopped
+
   main:
     build:
       context: .

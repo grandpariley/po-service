@@ -6,6 +6,6 @@ COPY ./po /code/po
 COPY ./poimport /code/poimport
 COPY ./pomatch /code/pomatch
 COPY ./*.py /code/
-COPY ./helper.sh /code/
-RUN chmod +x /code/helper.sh
-CMD ./helper.sh
+COPY ./arch2_main.sh /code/
+RUN chmod +x /code/arch2_main.sh
+CMD ./arch2_main.sh

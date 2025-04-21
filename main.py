@@ -57,8 +57,6 @@ def get_weights_by_portfolio_id(all_weights, portfolio_id):
     return [weight for weight in all_weights if weight['portfolio_id'] == portfolio_id][0]
 
 
-asyncio.run(arch2())
-
 Log.log("connecting to rabbit....")
 import queue_broker
 
