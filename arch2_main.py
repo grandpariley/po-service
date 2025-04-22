@@ -6,10 +6,10 @@ from po.pkg.problem.builder import default_portfolio_optimization_problem_arch_2
 
 
 async def arch2():
-    await db.clear_arch2_portfolio()
     solutions = await main({
         'arch2': default_portfolio_optimization_problem_arch_2(),
     })
+    await db.clear_arch2_portfolio()
     await db.insert_arch2_portfolios(solutions['arch2'])
 
 
