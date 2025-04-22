@@ -33,7 +33,7 @@ async def insert_survey(survey_result):
 
 
 async def get_surveys():
-    return await find_all(survey.find(None))
+    return await find_all(survey.find({}))
 
 
 async def insert_portfolio(portfolio_id, portfolio_result):
@@ -70,7 +70,7 @@ async def insert_arch2_portfolios(solutions):
 
 
 async def get_arch2_portfolios():
-    return await find_all(arch2_portfolio.find(None))
+    return await find_all(arch2_portfolio.find({}))
 
 
 async def arch2_portfolios_exist():
