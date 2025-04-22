@@ -15,9 +15,10 @@ async def arch2():
     })
     await db.clear_arch2_portfolio()
     await db.insert_arch2_portfolios(solutions['arch2'])
-    await db.insert_portfolio('Alice', solutions['Alice'])
-    await db.insert_portfolio('Sam', solutions['Sam'])
-    await db.insert_portfolio('Jars', solutions['Jars'])
+    for name in solutions.keys():
+        if name == 'arch2':
+            continue
+        await db.insert_portfolio(name, solutions[name])
 
 
 if __name__ == '__main__':

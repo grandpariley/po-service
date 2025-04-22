@@ -37,10 +37,11 @@ async def get_surveys():
 
 
 async def insert_portfolio(portfolio_id, portfolio_result):
-    print('saving portfolio: ' + portfolio_id + ' with results of length ' + str(len(portfolio_result['variables'])))
+    result = list(map(problem_encoder_fn, portfolio_result))
+    print('saving portfolio: ' + portfolio_id)
     await portfolio.insert_one({
         'portfolio_id': portfolio_id,
-        'portfolio': list(map(problem_encoder_fn, portfolio_result))
+        'portfolio': result
     })
 
 
