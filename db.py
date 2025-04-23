@@ -125,6 +125,10 @@ async def insert_queue_started(portfolio_id):
     await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "STARTED"})
 
 
+async def get_images():
+    return await find_all(image.find({}))
+
+
 async def insert_image(filename):
     with open(filename, 'rb') as image_file:
         data_bytes = base64.b64encode(image_file.read())
