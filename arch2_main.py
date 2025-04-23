@@ -2,6 +2,7 @@ import asyncio
 
 import db
 from po.main import main
+from po.evaluation import main as evaluate
 from po.pkg.consts import Constants
 from po.pkg.problem.builder import default_portfolio_optimization_problem_arch_2, \
     default_portfolio_optimization_problem_arch_1
@@ -23,5 +24,7 @@ async def arch2():
             await db.insert_portfolio(name, solutions[name])
 
 
+
 if __name__ == '__main__':
     asyncio.run(arch2())
+    evaluate(['Alice', 'Sam', 'Jars'])

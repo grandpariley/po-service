@@ -7,6 +7,7 @@ import motor.motor_asyncio
 from bson import ObjectId
 from dotenv import load_dotenv
 
+from po.pkg.log import Log
 from po.pkg.problem.problem import problem_encoder_fn
 
 load_dotenv()
@@ -17,6 +18,8 @@ portfolio = client.po.get_collection('portfolio')
 arch2_portfolio = client.po.get_collection('arch2_portfolio')
 survey = client.po.get_collection('survey')
 queue_status = client.po.get_collection('queue')
+generation = client.po.get_collection('generation')
+table_vs_benchmark = client.po.get_collection('table_vs_benchmark')
 client.get_io_loop = asyncio.get_running_loop
 
 
@@ -38,12 +41,32 @@ async def get_surveys():
 
 async def insert_portfolio(portfolio_id, portfolio_result):
     result = list(map(problem_encoder_fn, portfolio_result))
-    print('saving portfolio: ' + portfolio_id)
+    Log.log('saving portfolio: ' + portfolio_id)
     await portfolio.insert_one({
         'portfolio_id': portfolio_id,
         'portfolio': result
     })
 
+async def save_generation(tag, gen, non_dominated_solutions):
+    await generation.insert_one({
+        'tag': tag,
+        'generation': gen,
+        'solutions': non_dominated_solutions
+    })
+
+
+async def get_generation(tag, gen):
+    return await find_all(generation.find({
+        'tag': tag,
+        'generation': gen
+    }))
+
+
+async def save_table_vs_benchmark(tag, t_vs_b):
+    await table_vs_benchmark.insert_one({
+        'tag': tag,
+        'table_vs_benchmark': t_vs_b
+    })
 
 async def get_portfolio(portfolio_id):
     return JSONDecoder().decode(MongoJSONEncoder().encode(await portfolio.find_one({'portfolio_id': portfolio_id})))
