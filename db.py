@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import os
 from json import JSONDecoder
@@ -20,6 +21,7 @@ survey = client.po.get_collection('survey')
 queue_status = client.po.get_collection('queue')
 generation = client.po.get_collection('generation')
 table_vs_benchmark = client.po.get_collection('table_vs_benchmark')
+image = client.po.get_collection('image')
 client.get_io_loop = asyncio.get_running_loop
 
 
@@ -121,6 +123,15 @@ async def insert_queue_complete(portfolio_id):
 
 async def insert_queue_started(portfolio_id):
     await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "STARTED"})
+
+
+async def insert_image(filename):
+    with open(filename, 'rb') as image_file:
+        data_bytes = base64.b64encode(image_file.read())
+        await image.insert_one({
+            'filename': filename,
+            'data': data_bytes
+        })
 
 
 def add_run(problem, run):
