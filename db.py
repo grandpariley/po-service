@@ -69,8 +69,8 @@ async def insert_arch2_portfolios(run, solutions):
     await arch2_portfolio.insert_many(list(map(lambda p: add_run(run, p), map(problem_encoder_fn, solutions))))
 
 
-async def get_arch2_portfolios():
-    return await find_all(arch2_portfolio.find({}))
+async def get_arch2_portfolios(run = 0):
+    return await find_all(arch2_portfolio.find({'run': run}))
 
 
 async def arch2_portfolios_exist():

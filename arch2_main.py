@@ -16,7 +16,7 @@ async def arch2():
             'Jars-' + str(run): default_portfolio_optimization_problem_arch_1('Jars')
         })
         await db.clear_arch2_portfolio()
-        await db.insert_arch2_portfolios(run, solutions['arch2'])
+        await db.insert_arch2_portfolios(run, solutions['arch2-' + str(run)])
         for name in solutions.keys():
             if name == 'arch2':
                 continue
