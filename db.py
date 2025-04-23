@@ -65,9 +65,8 @@ async def clear_arch2_portfolio():
     await arch2_portfolio.delete_many({})
 
 
-async def insert_arch2_portfolios(solutions):
-    print('saving ' + str(len(solutions)) + ' solutions')
-    await arch2_portfolio.insert_many(list(map(problem_encoder_fn, solutions)))
+async def insert_arch2_portfolios(run, solutions):
+    await arch2_portfolio.insert_many(list(map(lambda p: add_run(run, p), map(problem_encoder_fn, solutions))))
 
 
 async def get_arch2_portfolios():
@@ -99,3 +98,8 @@ async def insert_queue_complete(portfolio_id):
 
 async def insert_queue_started(portfolio_id):
     await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "STARTED"})
+
+
+def add_run(problem, run):
+    setattr(problem, 'run', run)
+    return problem
