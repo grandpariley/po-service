@@ -2,7 +2,7 @@ import asyncio
 
 import db
 from po.main import main
-from po.evaluation import main as evaluate
+from evaluation import main as evaluate
 from po.pkg.consts import Constants
 from po.pkg.problem.builder import default_portfolio_optimization_problem_arch_2, \
     default_portfolio_optimization_problem_arch_1
