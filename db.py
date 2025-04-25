@@ -43,10 +43,17 @@ async def get_surveys():
 async def insert_portfolio(portfolio_id, portfolio_result):
     result = list(map(problem_encoder_fn, portfolio_result))
     Log.log('saving portfolio: ' + portfolio_id)
-    await portfolio.insert_one({
-        'portfolio_id': portfolio_id,
-        'portfolio': result
-    })
+    if portfolio.count_documents({'portfolio_id': portfolio_id}) > 0:
+        await portfolio.replace_one({'portfolio_id': portfolio_id}, {
+            'portfolio_id': portfolio_id,
+            'portfolio': result
+        })
+    else:
+        await portfolio.insert_one({
+            'portfolio_id': portfolio_id,
+            'portfolio': result
+        })
+
 
 async def save_generation(tag, gen, non_dominated_solutions):
     await generation.insert_one({
@@ -69,6 +76,7 @@ async def save_table_vs_benchmark(tag, t_vs_b):
         'table_vs_benchmark': t_vs_b
     })
 
+
 async def get_portfolio(portfolio_id):
     return JSONDecoder().decode(MongoJSONEncoder().encode(await portfolio.find_one({'portfolio_id': portfolio_id})))
 
@@ -85,27 +93,29 @@ async def find_all(cursor):
     return results
 
 
-async def clear_arch2_portfolio():
-    await arch2_portfolio.delete_many({})
+async def clear_arch2_portfolio(run=0):
+    await arch2_portfolio.delete_many({'run': run})
 
 
 async def insert_arch2_portfolios(run, solutions):
     await arch2_portfolio.insert_many(list(map(lambda p: add_run(run, p), map(problem_encoder_fn, solutions))))
 
 
-async def get_arch2_portfolios(run = 0):
+async def get_arch2_portfolios(run=0):
     return await find_all(arch2_portfolio.find({'run': run}))
 
 
-async def arch2_portfolios_exist():
-    return await arch2_portfolio.count_documents({}) > 0
+async def arch2_portfolios_exist(run=0):
+    return await arch2_portfolio.count_documents({'run': run}) > 0
 
 
 async def insert_queue(portfolio_id):
     await queue_status.insert_one({"portfolio_id": portfolio_id, "status": "PUBLISHED"})
 
+
 async def clear_batch_status():
     await queue_status.delete_one({"portfolio_id": BATCH_TASK_ID})
+
 
 async def get_queue(portfolio_id):
     return await queue_status.find_one({"portfolio_id": portfolio_id})

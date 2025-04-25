@@ -67,7 +67,7 @@ def graph_generations(name, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
     for run in range(Constants.NUM_RUNS):
-        for objective_index in range(len(generations[0][0][0]['objectives'])):
+        for objective_index in range(len(generations[run][0][0]['objectives'])):
             plt.scatter(
                 x=range(len(generations)),
                 y=[flatten(generation, objective_index) for generation in generations[run]],
