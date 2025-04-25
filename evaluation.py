@@ -6,6 +6,7 @@ from itertools import cycle, combinations
 import matplotlib.pyplot as plt
 
 import db
+from fetch_image import insert_image
 from po.match import match_portfolio
 from po.pkg.consts import Constants
 from po.pkg.data import fetch
@@ -59,7 +60,7 @@ def graph_solution_bigraph(name, solutions):
         filename = name + '/' + INDEX_TO_LABEL[objective_index1] + '-' + INDEX_TO_LABEL[objective_index2] + '.png'
         plt.savefig(filename)
         plt.clf()
-        db.insert_image(filename)
+        insert_image(filename)
 
 
 def graph_generations(name, generations):
@@ -76,7 +77,7 @@ def graph_generations(name, generations):
     filename = name + '/generations.png'
     plt.savefig(name + '/generations.png')
     plt.clf()
-    db.insert_image(filename)
+    insert_image(filename)
 
 
 def get_generations(name, run):
