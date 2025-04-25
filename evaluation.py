@@ -1,5 +1,6 @@
 import asyncio
 import csv
+import io
 import math
 from itertools import cycle, combinations
 
@@ -21,6 +22,12 @@ LABELS = {
     'arch1-alice': 'Alice'
 }
 
+async def save_image(filename):
+    bytesio = io.BytesIO()
+    plt.savefig(bytesio, format='png')
+    plt.clf()
+    bytesio.seek(0)
+    await insert_image(filename, bytes)
 
 def flatten(solutions, i=0):
     max_objective = -math.inf
@@ -39,7 +46,7 @@ def get_weight_sensitive_objective_value(solution, investor):
     return total
 
 
-def graph_solution_bigraph(name, solutions):
+async def graph_solution_bigraph(name, solutions):
     if len(solutions[0][0]['objectives']) <= 1:
         return
     for (objective_index1, objective_index2) in combinations(range(len(INDEX_TO_LABEL)), 2):
@@ -58,12 +65,10 @@ def graph_solution_bigraph(name, solutions):
         plt.xlabel(INDEX_TO_LABEL[objective_index2])
         plt.ylabel(INDEX_TO_LABEL[objective_index1])
         filename = name + '/' + INDEX_TO_LABEL[objective_index1] + '-' + INDEX_TO_LABEL[objective_index2] + '.png'
-        plt.savefig(filename)
-        plt.clf()
-        insert_image(filename)
+        await save_image(filename)
 
 
-def graph_generations(name, generations):
+async def graph_generations(name, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
     for run in range(Constants.NUM_RUNS):
@@ -75,9 +80,7 @@ def graph_generations(name, generations):
                 marker=next(markers)
             )
     filename = name + '/generations.png'
-    plt.savefig(name + '/generations.png')
-    plt.clf()
-    insert_image(filename)
+    await save_image(filename)
 
 
 def get_generations(name, run):
@@ -146,18 +149,18 @@ def get_weight_from_investor(investor):
     return None
 
 
-def table_vs_benchmark_one_solution(investor, run):
+async def table_vs_benchmark_one_solution(investor, run):
     solution = get_solution_for_investor(investor, run)
-    asyncio.run(db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution)))
+    await db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution))
 
 
-def main(arch1_names):
+async def main(arch1_names):
     for name in arch1_names:
-        graph_generations(name, [get_generations(name, run) for run in range(Constants.NUM_RUNS)])
-        graph_solution_bigraph(name, [get_solutions(name, run) for run in range(Constants.NUM_RUNS)])
+        await graph_generations(name, [get_generations(name, run) for run in range(Constants.NUM_RUNS)])
+        await graph_solution_bigraph(name, [get_solutions(name, run) for run in range(Constants.NUM_RUNS)])
     for run in range(Constants.NUM_RUNS):
         for investor in Constants.INVESTORS:
-            table_vs_benchmark_one_solution(investor, run)
+            await table_vs_benchmark_one_solution(investor, run)
         # uses too much mem in overleaf lol
         # for run in range(Constants.NUM_RUNS):
         #     csv_to_latex_table(name + '/' + str(run) + '/portfolio.csv',
@@ -169,4 +172,4 @@ def main(arch1_names):
 
 
 if __name__ == '__main__':
-    main(['Alice', 'Sam', 'Jars'])
+    asyncio.run(main(['Alice', 'Sam', 'Jars']))

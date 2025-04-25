@@ -4,6 +4,8 @@ import os
 import motor.motor_asyncio
 from dotenv import load_dotenv
 
+from po.pkg.log import Log
+
 load_dotenv()
 
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
@@ -22,13 +24,12 @@ async def get_images():
     return await find_all(image_collection.find({}))
 
 
-async def insert_image(filename):
-    with open(filename, 'rb') as image_file:
-        data_bytes = base64.b64encode(image_file.read())
-        await image_collection.insert_one({
-            'filename': filename,
-            'data': data_bytes
-        })
+async def insert_image(filename, data_bytes):
+    Log.log("inserting image into db: " + filename)
+    await image_collection.insert_one({
+        'filename': filename,
+        'data': data_bytes
+    })
 
 
 def main():

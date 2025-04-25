@@ -27,4 +27,4 @@ async def arch2():
 
 if __name__ == '__main__':
     asyncio.run(arch2())
-    evaluate(['Alice', 'Sam', 'Jars'])
+    asyncio.run(evaluate(['Alice', 'Sam', 'Jars']))
