@@ -2,6 +2,7 @@ import asyncio
 import base64
 import os
 import motor.motor_asyncio
+from dotenv import load_dotenv
 
 load_dotenv()
 
