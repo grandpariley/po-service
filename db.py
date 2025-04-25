@@ -138,6 +138,6 @@ async def insert_image(filename):
         })
 
 
-def add_run(problem, run):
+def add_run(run, problem):
     setattr(problem, 'run', run)
     return problem
