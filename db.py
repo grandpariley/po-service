@@ -43,7 +43,7 @@ async def get_surveys():
 async def insert_portfolio(portfolio_id, portfolio_result):
     result = list(map(problem_encoder_fn, portfolio_result))
     Log.log('saving portfolio: ' + portfolio_id)
-    if portfolio.count_documents({'portfolio_id': portfolio_id}) > 0:
+    if await portfolio.count_documents({'portfolio_id': portfolio_id}) > 0:
         await portfolio.replace_one({'portfolio_id': portfolio_id}, {
             'portfolio_id': portfolio_id,
             'portfolio': result
