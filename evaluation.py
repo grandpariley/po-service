@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import csv
 import io
 import math
@@ -28,7 +29,7 @@ async def save_image(filename):
     plt.savefig(bytesio, format='png')
     plt.clf()
     bytesio.seek(0)
-    await insert_image(filename, bytes)
+    await insert_image(filename, base64.b64encode(bytesio.read()))
 
 def flatten(solutions, i=0):
     max_objective = -math.inf
