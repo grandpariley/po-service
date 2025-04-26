@@ -11,6 +11,7 @@ from fetch_image import insert_image
 from po.match import match_portfolio
 from po.pkg.consts import Constants
 from po.pkg.data import fetch
+from po.pkg.log import Log
 
 COLOURS = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'aquamarine', 'mediumseagreen', 'burlywood', 'coral']
 MARKERS = ['.', 'o', 'v', '^', '<', '>', 's', 'x', 'd', '|', '_']
@@ -72,6 +73,12 @@ async def graph_generations(name, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
     for run in range(Constants.NUM_RUNS):
+        try:
+            generations[run][0][0]['objectives']
+        except IndexError:
+            Log.log("WARNING: INDEX ERROR FOR [" + str(name) + "] RUN [" + str(run) + "]")
+            continue
+
         for objective_index in range(len(generations[run][0][0]['objectives'])):
             plt.scatter(
                 x=range(len(generations)),
