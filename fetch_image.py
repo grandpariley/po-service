@@ -36,7 +36,7 @@ def main():
     images = asyncio.run(get_images())
     for image in images:
         with open(image['filename'], "wb") as image_file:
-            image_file.write(image['data'].decode('base64'))
+            image_file.write(base64.b64decode(image['data']))
 
 
 if __name__ == '__main__':
