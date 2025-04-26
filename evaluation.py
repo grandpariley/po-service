@@ -83,17 +83,17 @@ async def graph_generations(name, generations):
     await save_image(filename)
 
 
-def get_generations(name, run):
+async def get_generations(name, run):
     generations = []
     for generation in range(Constants.NUM_GENERATIONS):
-        generations.append(asyncio.run(db.get_generation(name + "-" + str(run), generation)))
+        generations.append(await db.get_generation(name + "-" + str(run), generation))
     return generations
 
 
-def get_solutions(name, run):
+async def get_solutions(name, run):
     if name == 'arch2':
-        return asyncio.run(db.get_arch2_portfolios(run))
-    return asyncio.run(db.get_portfolio(str(name) + '-' + str(run)))
+        return await db.get_arch2_portfolios(run)
+    return await db.get_portfolio(str(name) + '-' + str(run))
 
 
 def calculate_one(solution, objective):
@@ -156,8 +156,13 @@ async def table_vs_benchmark_one_solution(investor, run):
 
 async def main(arch1_names):
     for name in arch1_names:
-        await graph_generations(name, [get_generations(name, run) for run in range(Constants.NUM_RUNS)])
-        await graph_solution_bigraph(name, [get_solutions(name, run) for run in range(Constants.NUM_RUNS)])
+        generations_by_run = []
+        solutions_by_run = []
+        for run in range(Constants.NUM_RUNS):
+            generations_by_run.append(await get_generations(name, run))
+            solutions_by_run.append(await get_solutions(name, run))
+        await graph_generations(name, generations_by_run)
+        await graph_solution_bigraph(name, solutions_by_run)
     for run in range(Constants.NUM_RUNS):
         for investor in Constants.INVESTORS:
             await table_vs_benchmark_one_solution(investor, run)
