@@ -80,6 +80,9 @@ async def get_generations(name, run):
     generations = []
     for generation in range(Constants.NUM_GENERATIONS):
         generation_data = await db.get_generation(name + "-" + str(run), generation)
+        if generation_data is None:
+            Log.log("WARNING: GENERATION NOT FOUND: " + name + "-" + str(run) + " gen " + str(generation))
+            continue
         generations.append(generation_data)
     return generations
 
@@ -102,8 +105,11 @@ def get_solution_for_investor(investor, solutions):
 
 
 async def table_vs_benchmark_one_solution(investor, run, solutions, benchmark):
-    Log.log("table_vs_benchmark_one_solution " + str(investor) + " " + str(run))
+    Log.log("table_vs_benchmark_one_solution " + str(investor['person']) + " " + str(run))
     solution = get_solution_for_investor(investor, solutions)
+    if solution is None:
+        Log.log("WARNING: NO SOLUTION FOUND FOR " + str(investor['person']))
+        return
     await db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution, benchmark))
 
 

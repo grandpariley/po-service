@@ -64,10 +64,10 @@ async def save_generation(tag, gen, non_dominated_solutions):
 
 
 async def get_generation(tag, gen):
-    return await find_all(generation.find({
+    return await generation.find_one({
         'tag': tag,
         'generation': gen
-    }))
+    })
 
 
 async def save_table_vs_benchmark(tag, t_vs_b):
