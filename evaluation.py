@@ -141,7 +141,7 @@ def csv_to_latex_table(csv_filename, output_filename, caption, label, latex_rows
 
 
 async def get_solution_for_investor(investor, run):
-    weights = get_weight_from_investor(investor)
+    weights = investor['weights']
     solutions = await db.get_arch2_portfolios(run=run)
     return match_portfolio(weights, solutions)
 
