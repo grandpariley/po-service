@@ -54,6 +54,7 @@ async def graph_solution_bigraph(solutions):
             continue
         colours = cycle(COLOURS)
         for run in range(Constants.NUM_RUNS * 2):
+            Log.log("graph_solution_bigraph " + str(run) + " objective 1: " + str(objective_index1) + " objective 2: " + str(objective_index2))
             colour = next(colours)
             for s in range(len(solutions[run])):
                 plt.scatter(
@@ -72,6 +73,7 @@ async def graph_generations(name, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
     for run in range(Constants.NUM_RUNS * 2):
+        Log.log("graph_generations " + str(name) + " " + str(run))
         try:
             generations[run][0][0]['objectives']
         except IndexError:
@@ -162,6 +164,7 @@ def get_weight_from_investor(investor):
 
 
 async def table_vs_benchmark_one_solution(investor, run):
+    Log.log("table_vs_benchmark_one_solution " + str(investor) + " " + str(run))
     solution = await get_solution_for_investor(investor, run)
     await db.save_table_vs_benchmark('arch2-' + str(run), await get_table_vs_benchmark_one_solution(solution))
 
