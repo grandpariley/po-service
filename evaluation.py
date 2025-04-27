@@ -191,3 +191,4 @@ async def main(arch1_names):
 
 if __name__ == '__main__':
     asyncio.run(main(['Alice', 'Sam', 'Jars']))
+    Log.log("done evaluation~!")
