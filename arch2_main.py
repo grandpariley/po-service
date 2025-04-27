@@ -15,7 +15,7 @@ async def arch2():
             'Alice-' + str(run): default_portfolio_optimization_problem_arch_1('Alice'),
             'Sam-' + str(run): default_portfolio_optimization_problem_arch_1('Sam'),
             'Jars-' + str(run): default_portfolio_optimization_problem_arch_1('Jars')
-        }, run)
+        })
         await db.clear_arch2_portfolio(run)
         await db.insert_arch2_portfolios(run, solutions['arch2-' + str(run)])
         for name in solutions.keys():

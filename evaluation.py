@@ -53,7 +53,7 @@ async def graph_solution_bigraph(solutions):
         if objective_index1 == objective_index2:
             continue
         colours = cycle(COLOURS)
-        for run in range(Constants.NUM_RUNS):
+        for run in range(Constants.NUM_RUNS * 2):
             colour = next(colours)
             for s in range(len(solutions[run])):
                 plt.scatter(
@@ -71,7 +71,7 @@ async def graph_solution_bigraph(solutions):
 async def graph_generations(name, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
-    for run in range(Constants.NUM_RUNS):
+    for run in range(Constants.NUM_RUNS * 2):
         try:
             generations[run][0][0]['objectives']
         except IndexError:
@@ -92,7 +92,8 @@ async def graph_generations(name, generations):
 async def get_generations(name, run):
     generations = []
     for generation in range(Constants.NUM_GENERATIONS):
-        generations.append(await db.get_generation(name + "-" + str(run), generation))
+        generation_data = await db.get_generation(name + "-" + str(run), generation)
+        generations.append(generation_data)
     return generations
 
 
@@ -168,16 +169,16 @@ async def table_vs_benchmark_one_solution(investor, run):
 async def main(arch1_names):
     for name in arch1_names:
         generations_by_run = []
-        for run in range(Constants.NUM_RUNS):
+        for run in range(Constants.NUM_RUNS * 2):
             generations_by_run.append(await get_generations(name, run))
         await graph_generations(name, generations_by_run)
 
     solutions_by_run = []
-    for run in range(Constants.NUM_RUNS):
+    for run in range(Constants.NUM_RUNS * 2):
         solutions_by_run.append(await get_arch2_solutions(run))
         for investor in Constants.INVESTORS:
             await table_vs_benchmark_one_solution(investor, run)
-        await graph_solution_bigraph(solutions_by_run)
+    await graph_solution_bigraph(solutions_by_run)
         # uses too much mem in overleaf lol
         # for run in range(Constants.NUM_RUNS):
         #     csv_to_latex_table(name + '/' + str(run) + '/portfolio.csv',
