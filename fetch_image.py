@@ -1,6 +1,8 @@
 import asyncio
 import base64
 import os
+import uuid
+
 import motor.motor_asyncio
 from dotenv import load_dotenv
 
@@ -31,11 +33,21 @@ async def insert_image(filename, data_bytes):
         'data': data_bytes
     })
 
+def get_random(filename):
+    return str(uuid.uuid5(uuid.NAMESPACE_OID, filename))
+
 
 def main():
     images = asyncio.run(get_images())
     for image in images:
-        with open(image['filename'], "wb") as image_file:
+        new_image_filename = image['filename']
+        if os.path.exists(new_image_filename):
+            new_image_filename = get_random(new_image_filename) + "_" + new_image_filename
+        if '/' in new_image_filename:
+            directories = new_image_filename[:new_image_filename.find('/')]
+            if not os.path.exists(directories):
+                os.mkdir(directories)
+        with open(new_image_filename, "ab+") as image_file:
             image_file.write(base64.b64decode(image['data']))
 
 
