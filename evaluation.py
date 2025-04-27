@@ -150,9 +150,9 @@ def csv_to_latex_table(csv_filename, output_filename, caption, label, latex_rows
             '\\hline\n\\end{tabular}\\caption{' + caption + '}\n\\label{tab:' + label + '}\n\\end{table}')
 
 
-def get_solution_for_investor(investor, run):
+async def get_solution_for_investor(investor, run):
     weights = get_weight_from_investor(investor)
-    solutions = asyncio.run(db.get_arch2_portfolios(run=run))
+    solutions = await db.get_arch2_portfolios(run=run)
     return match_portfolio(weights, solutions)
 
 
@@ -164,7 +164,7 @@ def get_weight_from_investor(investor):
 
 
 async def table_vs_benchmark_one_solution(investor, run):
-    solution = get_solution_for_investor(investor, run)
+    solution = await get_solution_for_investor(investor, run)
     await db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution))
 
 
