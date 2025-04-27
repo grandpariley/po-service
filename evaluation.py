@@ -100,9 +100,9 @@ async def get_arch2_solutions(run):
     return await db.get_arch2_portfolios(run)
 
 
-def calculate_one(solution, objective):
+async def calculate_one(solution, objective):
     return sum([
-        value * fetch(name)[objective] for name, value in solution['variables'].items()
+        value * (await fetch(name))[objective] for name, value in solution['variables'].items()
     ]) / sum([
         value for value in solution['variables'].values()
     ])
