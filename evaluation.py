@@ -36,8 +36,6 @@ async def graph_solution_bigraph_arch2(run, solutions):
         if objective_index1 == objective_index2:
             continue
         colours = cycle(COLOURS)
-        Log.log(
-            "graph_solution_bigraph objective 1: " + str(objective_index1) + " objective 2: " + str(objective_index2))
         colour = next(colours)
         for s in range(len(solutions)):
             plt.scatter(
@@ -53,27 +51,25 @@ async def graph_solution_bigraph_arch2(run, solutions):
         await save_image(filename)
 
 
-async def graph_generations_arch1(name, generations):
+async def graph_generations_arch2(run, investor, generations):
     markers = cycle(MARKERS)
     colours = cycle(COLOURS)
-    try:
-        generations[0]['solutions'][0]['objectives']
-    except IndexError:
-        Log.log("WARNING: INDEX ERROR FOR [" + str(name) + "]")
-        return
-    except KeyError:
-        Log.log("WARNING: KEY ERROR FOR [" + str(name) + "]")
-        return
 
-    for objective_index in range(len(generations[0]['solutions'][0]['objectives'])):
+    for objective_index in range(len(INDEX_TO_LABEL)):
+        y = []
+        for generation in generations:
+            best_solution = get_solution_for_investor(investor, generation['solutions'])
+            y.append(best_solution['objectives'][objective_index])
         plt.scatter(
             x=range(len(generations)),
-            y=[generation['solutions'][0]['objectives'][0] for generation in generations],
+            y=y,
             color=next(colours),
             marker=next(markers)
         )
-    filename = name + '/generations.png'
-    await save_image(filename)
+        plt.xlabel("generation")
+        plt.ylabel(INDEX_TO_LABEL[objective_index])
+        filename = 'arch2-' + str(run) + '/' + INDEX_TO_LABEL[objective_index] + '-generations.png'
+        await save_image(filename)
 
 
 async def get_generations(name, run):
@@ -87,7 +83,7 @@ async def get_generations(name, run):
     return generations
 
 
-def get_table_vs_benchmark_one_solution(solution, benchmark):
+def get_table_vs_benchmark_one_solution_arch2(solution, benchmark):
     return {
         'return': {'solution': solution['objectives'][INDEX_TO_LABEL.index('return')],
                    'benchmark': benchmark['return']},
@@ -99,32 +95,59 @@ def get_table_vs_benchmark_one_solution(solution, benchmark):
     }
 
 
+def get_table_vs_benchmark_one_solution_arch1(weights, solution, benchmark):
+    ov = solution['objectives'][0]
+    return {
+        'return': {'solution': decompose(ov, weights['return']), 'benchmark': benchmark['return']},
+        'var': {'solution': decompose(ov, weights['var']), 'benchmark': benchmark['var']},
+        'cvar': {'solution': decompose(ov, weights['cvar']), 'benchmark': benchmark['cvar']},
+        'environment': {'solution': decompose(ov, weights['environment']), 'benchmark': 'N/A'},
+        'social': {'solution': decompose(ov, weights['social']), 'benchmark': 'N/A'},
+        'governance': {'solution': decompose(ov, weights['governance']), 'benchmark': 'N/A'}
+    }
+
+
+def decompose(ov, weight):
+    if weight == 0:
+        return 0
+    return ov / weight
+
+
 def get_solution_for_investor(investor, solutions):
     weights = investor['weights']
     return match_portfolio(weights, solutions)
 
 
-async def table_vs_benchmark_one_solution(investor, run, solutions, benchmark):
-    Log.log("table_vs_benchmark_one_solution " + str(investor['person']) + " " + str(run))
+async def table_vs_benchmark_arch2(investor, run, solutions, benchmark):
+    Log.log("table_vs_benchmark arch 2 - " + str(investor['person']) + "-" + str(run))
     solution = get_solution_for_investor(investor, solutions)
     if solution is None:
         Log.log("WARNING: NO SOLUTION FOUND FOR " + str(investor['person']))
         return
-    await db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution, benchmark))
+    await db.save_table_vs_benchmark('arch2-' + str(run),
+                                     get_table_vs_benchmark_one_solution_arch2(solution, benchmark))
 
 
-async def main(arch1_names):
+async def table_vs_benchmark_arch1(investor, run, solution, benchmark):
+    Log.log("table_vs_benchmark arch 1 - " + str(investor['person']) + "-" + str(run))
+    await db.save_table_vs_benchmark(investor['person'] + '-' + str(run),
+                                     get_table_vs_benchmark_one_solution_arch1(investor['weights'], solution,
+                                                                               benchmark))
+
+
+async def evaluate():
     benchmark = await fetch('^GSPTSE')
     for run in range(Constants.NUM_RUNS * 2):
-        for name in arch1_names:
-            generations = await get_generations(name, run)
-            await graph_generations_arch1(name + "-" + str(run), generations)
+        generations = await get_generations('arch2', run)
         arch2_solutions = await db.get_arch2_portfolios(run=run)
-        for investor in Constants.INVESTORS:
-            await table_vs_benchmark_one_solution(investor, run, arch2_solutions, benchmark)
         await graph_solution_bigraph_arch2(run, arch2_solutions)
+        for investor in Constants.INVESTORS:
+            await graph_generations_arch2(run, investor, generations)
+            await table_vs_benchmark_arch2(investor, run, arch2_solutions, benchmark)
+            investor_arch1_solution = await db.get_portfolio(investor['person'] + "-" + str(run))
+            await table_vs_benchmark_arch1(investor, run, investor_arch1_solution['portfolio'][0], benchmark)
 
 
 if __name__ == '__main__':
-    asyncio.run(main(['Alice', 'Sam', 'Jars']))
+    asyncio.run(evaluate())
     Log.log("done evaluation~!")

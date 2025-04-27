@@ -2,8 +2,9 @@ import asyncio
 
 import db
 from po.main import main
-from evaluation import main as evaluate
+from evaluation import evaluate
 from po.pkg.consts import Constants
+from po.pkg.log import Log
 from po.pkg.problem.builder import default_portfolio_optimization_problem_arch_2, \
     default_portfolio_optimization_problem_arch_1
 
@@ -26,5 +27,7 @@ async def arch2():
 
 
 if __name__ == '__main__':
-    asyncio.run(arch2())
-    asyncio.run(evaluate(['Alice', 'Sam', 'Jars']))
+    # asyncio.run(arch2())
+    asyncio.run(evaluate())
+    Log.log("done evaluation~!")
+

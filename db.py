@@ -66,7 +66,7 @@ async def save_generation(tag, gen, non_dominated_solutions):
 async def get_generation(tag, gen):
     return await generation.find_one({
         'tag': tag,
-        'generation': gen
+        'generation': str(gen)
     })
 
 
