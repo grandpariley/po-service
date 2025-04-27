@@ -27,7 +27,7 @@ async def arch2():
 
 
 if __name__ == '__main__':
-    # asyncio.run(arch2())
+    asyncio.run(arch2())
     asyncio.run(evaluate())
     Log.log("done evaluation~!")
 
