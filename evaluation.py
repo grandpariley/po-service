@@ -108,12 +108,12 @@ def calculate_one(solution, objective):
     ])
 
 
-def get_benchmark():
-    return asyncio.run(fetch(''))
+async def get_benchmark():
+    return await fetch('^GSPTSE')
 
 
-def get_table_vs_benchmark_one_solution(solution):
-    benchmark = get_benchmark()
+async def get_table_vs_benchmark_one_solution(solution):
+    benchmark = await get_benchmark()
     return {
         'return': {'solution': calculate_one(solution, 'return'), 'benchmark': benchmark['return']},
         'var': {'solution': calculate_one(solution, 'var'), 'benchmark': benchmark['var']},
@@ -155,7 +155,7 @@ def get_weight_from_investor(investor):
 
 async def table_vs_benchmark_one_solution(investor, run):
     solution = await get_solution_for_investor(investor, run)
-    await db.save_table_vs_benchmark('arch2-' + str(run), get_table_vs_benchmark_one_solution(solution))
+    await db.save_table_vs_benchmark('arch2-' + str(run), await get_table_vs_benchmark_one_solution(solution))
 
 
 async def main(arch1_names):
