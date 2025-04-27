@@ -68,7 +68,8 @@ async def graph_generations_arch2(run, investor, generations):
         )
         plt.xlabel("generation")
         plt.ylabel(INDEX_TO_LABEL[objective_index])
-        filename = 'arch2-' + str(run) + '/' + investor['person'] + '-' +INDEX_TO_LABEL[objective_index] + '-generations.png'
+        filename = 'arch2-' + str(run) + '/' + investor['person'] + '-' + INDEX_TO_LABEL[
+            objective_index] + '-generations.png'
         await save_image(filename)
 
 
