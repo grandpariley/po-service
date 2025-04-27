@@ -48,7 +48,7 @@ def get_weight_sensitive_objective_value(solution, investor):
     return total
 
 
-async def graph_solution_bigraph(name, solutions):
+async def graph_solution_bigraph(solutions):
     for (objective_index1, objective_index2) in combinations(range(len(INDEX_TO_LABEL)), 2):
         if objective_index1 == objective_index2:
             continue
@@ -56,14 +56,6 @@ async def graph_solution_bigraph(name, solutions):
         for run in range(Constants.NUM_RUNS):
             colour = next(colours)
             for s in range(len(solutions[run])):
-                try:
-                    solutions[run][s]['objectives']
-                except KeyError:
-                    Log.log("WARNING: KEY ERROR FOR [" + str(name) + "] RUN [" + str(run) + "]")
-                    continue
-                except IndexError:
-                    Log.log("WARNING: INDEX ERROR FOR [" + str(name) + "] RUN [" + str(run) + "]")
-                    continue
                 plt.scatter(
                     x=[solutions[run][s]['objectives'][objective_index2]],
                     y=[solutions[run][s]['objectives'][objective_index1]],
@@ -72,7 +64,7 @@ async def graph_solution_bigraph(name, solutions):
                 )
         plt.xlabel(INDEX_TO_LABEL[objective_index2])
         plt.ylabel(INDEX_TO_LABEL[objective_index1])
-        filename = name + '/' + INDEX_TO_LABEL[objective_index1] + '-' + INDEX_TO_LABEL[objective_index2] + '.png'
+        filename = INDEX_TO_LABEL[objective_index1] + '-' + INDEX_TO_LABEL[objective_index2] + '.png'
         await save_image(filename)
 
 
@@ -104,10 +96,8 @@ async def get_generations(name, run):
     return generations
 
 
-async def get_solutions(name, run):
-    if name == 'arch2':
-        return await db.get_arch2_portfolios(run)
-    return await db.get_portfolio(str(name) + '-' + str(run))
+async def get_arch2_solutions(run):
+    return await db.get_arch2_portfolios(run)
 
 
 def calculate_one(solution, objective):
@@ -171,15 +161,16 @@ async def table_vs_benchmark_one_solution(investor, run):
 async def main(arch1_names):
     for name in arch1_names:
         generations_by_run = []
-        solutions_by_run = []
         for run in range(Constants.NUM_RUNS):
             generations_by_run.append(await get_generations(name, run))
-            solutions_by_run.append(await get_solutions(name, run))
         await graph_generations(name, generations_by_run)
-        await graph_solution_bigraph(name, solutions_by_run)
+
+    solutions_by_run = []
     for run in range(Constants.NUM_RUNS):
+        solutions_by_run.append(await get_arch2_solutions(run))
         for investor in Constants.INVESTORS:
             await table_vs_benchmark_one_solution(investor, run)
+        await graph_solution_bigraph(solutions_by_run)
         # uses too much mem in overleaf lol
         # for run in range(Constants.NUM_RUNS):
         #     csv_to_latex_table(name + '/' + str(run) + '/portfolio.csv',
