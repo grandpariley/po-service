@@ -49,8 +49,6 @@ def get_weight_sensitive_objective_value(solution, investor):
 
 
 async def graph_solution_bigraph(name, solutions):
-    if len(solutions[0][0]['objectives']) <= 1:
-        return
     for (objective_index1, objective_index2) in combinations(range(len(INDEX_TO_LABEL)), 2):
         if objective_index1 == objective_index2:
             continue
@@ -58,6 +56,14 @@ async def graph_solution_bigraph(name, solutions):
         for run in range(Constants.NUM_RUNS):
             colour = next(colours)
             for s in range(len(solutions[run])):
+                try:
+                    solutions[run][s]['objectives']
+                except KeyError:
+                    Log.log("WARNING: KEY ERROR FOR [" + str(name) + "] RUN [" + str(run) + "]")
+                    continue
+                except IndexError:
+                    Log.log("WARNING: INDEX ERROR FOR [" + str(name) + "] RUN [" + str(run) + "]")
+                    continue
                 plt.scatter(
                     x=[solutions[run][s]['objectives'][objective_index2]],
                     y=[solutions[run][s]['objectives'][objective_index1]],
