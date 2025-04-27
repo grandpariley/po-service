@@ -102,10 +102,17 @@ async def get_arch2_solutions(run):
 
 async def calculate_one(solution, objective):
     return sum([
-        value * (await fetch(name))[objective] for name, value in solution['variables'].items()
+        value * await get_objective_value_by_symbol(name, objective) for name, value in solution['variables'].items()
     ]) / sum([
         value for value in solution['variables'].values()
     ])
+
+
+async def get_objective_value_by_symbol(variable_index, objective):
+    data = await fetch(variable_index)
+    if data[objective] is None:
+        return 0
+    return data[objective]
 
 
 async def get_benchmark():
