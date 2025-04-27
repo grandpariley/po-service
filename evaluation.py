@@ -115,12 +115,12 @@ async def get_benchmark():
 async def get_table_vs_benchmark_one_solution(solution):
     benchmark = await get_benchmark()
     return {
-        'return': {'solution': calculate_one(solution, 'return'), 'benchmark': benchmark['return']},
-        'var': {'solution': calculate_one(solution, 'var'), 'benchmark': benchmark['var']},
-        'cvar': {'solution': calculate_one(solution, 'cvar'), 'benchmark': benchmark['cvar']},
-        'environment': {'solution': calculate_one(solution, 'environment'), 'benchmark': 'N/A'},
-        'social': {'solution': calculate_one(solution, 'social'), 'benchmark': 'N/A'},
-        'governance': {'solution': calculate_one(solution, 'governance'), 'benchmark': 'N/A'}
+        'return': {'solution': await calculate_one(solution, 'return'), 'benchmark': benchmark['return']},
+        'var': {'solution': await calculate_one(solution, 'var'), 'benchmark': benchmark['var']},
+        'cvar': {'solution': await calculate_one(solution, 'cvar'), 'benchmark': benchmark['cvar']},
+        'environment': {'solution': await calculate_one(solution, 'environment'), 'benchmark': 'N/A'},
+        'social': {'solution': await calculate_one(solution, 'social'), 'benchmark': 'N/A'},
+        'governance': {'solution': await calculate_one(solution, 'governance'), 'benchmark': 'N/A'}
     }
 
 
