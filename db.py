@@ -137,3 +137,8 @@ async def insert_queue_started(portfolio_id):
 def add_run(run, problem):
     problem['run'] = run
     return problem
+
+
+async def min_max(field, min_max_mod):
+    data = client.po.get_collection('data')
+    return (await find_all(data.find({"data." + field: min_max_mod}, limit=1)))[0]['data']

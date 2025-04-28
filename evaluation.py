@@ -84,27 +84,43 @@ async def get_generations(name, run):
     return generations
 
 
-def get_table_vs_benchmark_one_solution_arch2(solution, benchmark):
-    return {
-        'return': {'solution': solution['objectives'][INDEX_TO_LABEL.index('return')],
-                   'benchmark': benchmark['return']},
-        'var': {'solution': solution['objectives'][INDEX_TO_LABEL.index('var')], 'benchmark': benchmark['var']},
-        'cvar': {'solution': solution['objectives'][INDEX_TO_LABEL.index('cvar')], 'benchmark': benchmark['cvar']},
-        'environment': {'solution': solution['objectives'][INDEX_TO_LABEL.index('environment')], 'benchmark': 'N/A'},
-        'social': {'solution': solution['objectives'][INDEX_TO_LABEL.index('social')], 'benchmark': 'N/A'},
-        'governance': {'solution': solution['objectives'][INDEX_TO_LABEL.index('governance')], 'benchmark': 'N/A'}
-    }
+async def get_value(objective, solution, weight):
+    objective_value = 0
+    for key, value in solution['variables'].items():
+        d = await fetch(key)
+        if d[objective] is None:
+            continue
+        how_much_of_budget = d['price'] * value / Constants.BUDGET
+        objective_value += d[objective] * how_much_of_budget
+    return objective_value * weight
 
 
-def get_table_vs_benchmark_one_solution_arch1(weights, solution, benchmark):
-    ov = solution['objectives'][0]
+async def get_table_vs_benchmark_one_solution(solution, benchmark, weights=None):
     return {
-        'return': {'solution': decompose(ov, weights['return']), 'benchmark': benchmark['return']},
-        'var': {'solution': decompose(ov, weights['var']), 'benchmark': benchmark['var']},
-        'cvar': {'solution': decompose(ov, weights['cvar']), 'benchmark': benchmark['cvar']},
-        'environment': {'solution': decompose(ov, weights['environment']), 'benchmark': 'N/A'},
-        'social': {'solution': decompose(ov, weights['social']), 'benchmark': 'N/A'},
-        'governance': {'solution': decompose(ov, weights['governance']), 'benchmark': 'N/A'}
+        'return': {
+            'solution': await get_value('return', solution, weights['return'] if weights is not None else 1),
+            'benchmark': benchmark['return']
+        },
+        'var': {
+            'solution': await get_value('var', solution, weights['var'] if weights is not None else 1),
+            'benchmark': benchmark['var']
+        },
+        'cvar': {
+            'solution': await get_value('cvar', solution, weights['cvar'] if weights is not None else 1),
+            'benchmark': benchmark['cvar']
+        },
+        'environment': {
+            'solution': await get_value('environment', solution, weights['environment'] if weights is not None else 1),
+            'benchmark': benchmark['environment']
+        },
+        'social': {
+            'solution': await get_value('social', solution, weights['social'] if weights is not None else 1),
+            'benchmark': benchmark['social']
+        },
+        'governance': {
+            'solution': await get_value('governance', solution, weights['governance'] if weights is not None else 1),
+            'benchmark': benchmark['governance']
+        },
     }
 
 
@@ -126,24 +142,23 @@ async def table_vs_benchmark_arch2(investor, run, solutions, benchmark):
         Log.log("WARNING: NO SOLUTION FOUND FOR " + str(investor['person']))
         return
     await db.save_table_vs_benchmark('arch2-' + str(run),
-                                     get_table_vs_benchmark_one_solution_arch2(solution, benchmark))
+                                     await get_table_vs_benchmark_one_solution(solution, benchmark))
 
 
 async def table_vs_benchmark_arch1(investor, run, solution, benchmark):
     Log.log("table_vs_benchmark arch 1 - " + str(investor['person']) + "-" + str(run))
     await db.save_table_vs_benchmark(investor['person'] + '-' + str(run),
-                                     get_table_vs_benchmark_one_solution_arch1(investor['weights'], solution,
-                                                                               benchmark))
+                                     await get_table_vs_benchmark_one_solution(solution, benchmark, investor['weights']))
 
 
 async def evaluate():
     benchmark = await fetch('^GSPTSE')
     for run in range(Constants.NUM_RUNS):
-        generations = await get_generations('arch2', run)
+        # generations = await get_generations('arch2', run)
         arch2_solutions = await db.get_arch2_portfolios(run=run)
-        await graph_solution_bigraph_arch2(run, arch2_solutions)
+        # await graph_solution_bigraph_arch2(run, arch2_solutions)
         for investor in Constants.INVESTORS:
-            await graph_generations_arch2(run, investor, generations)
+            # await graph_generations_arch2(run, investor, generations)
             await table_vs_benchmark_arch2(investor, run, arch2_solutions, benchmark)
             investor_arch1_solution = await db.get_portfolio(investor['person'] + "-" + str(run))
             await table_vs_benchmark_arch1(investor, run, investor_arch1_solution['portfolio'][0], benchmark)
@@ -152,7 +167,6 @@ async def evaluate():
 if __name__ == '__main__':
     asyncio.run(evaluate())
     Log.log("done evaluation~!")
-
 
 # TODO
 # - add beta to table vs benchmark
