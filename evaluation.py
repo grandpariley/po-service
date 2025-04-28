@@ -141,7 +141,7 @@ async def table_vs_benchmark_arch2(investor, run, solutions, benchmark):
     if solution is None:
         Log.log("WARNING: NO SOLUTION FOUND FOR " + str(investor['person']))
         return
-    await db.save_table_vs_benchmark('arch2-' + str(run),
+    await db.save_table_vs_benchmark('arch2-' + investor['person'] + "-" + str(run),
                                      await get_table_vs_benchmark_one_solution(solution, benchmark))
 
 
