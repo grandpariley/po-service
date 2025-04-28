@@ -142,17 +142,18 @@ async def table_vs_benchmark_arch2(investor, run, solutions, benchmark):
 async def table_vs_benchmark_arch1(investor, run, solution, benchmark):
     Log.log("table_vs_benchmark arch 1 - " + str(investor['person']) + "-" + str(run))
     await db.save_table_vs_benchmark(investor['person'] + '-' + str(run),
-                                     await get_table_vs_benchmark_one_solution(solution, benchmark, investor['weights']))
+                                     await get_table_vs_benchmark_one_solution(solution, benchmark,
+                                                                               investor['weights']))
 
 
 async def evaluate():
     benchmark = await fetch('^GSPTSE')
     for run in range(Constants.NUM_RUNS):
-        # generations = await get_generations('arch2', run)
+        generations = await get_generations('arch2', run)
         arch2_solutions = await db.get_arch2_portfolios(run=run)
-        # await graph_solution_bigraph_arch2(run, arch2_solutions)
+        await graph_solution_bigraph_arch2(run, arch2_solutions)
         for investor in Constants.INVESTORS:
-            # await graph_generations_arch2(run, investor, generations)
+            await graph_generations_arch2(run, investor, generations)
             await table_vs_benchmark_arch2(investor, run, arch2_solutions, benchmark)
             investor_arch1_solution = await db.get_portfolio(investor['person'] + "-" + str(run))
             await table_vs_benchmark_arch1(investor, run, investor_arch1_solution['portfolio'][0], benchmark)
@@ -161,8 +162,3 @@ async def evaluate():
 if __name__ == '__main__':
     asyncio.run(evaluate())
     Log.log("done evaluation~!")
-
-# TODO
-# - add beta to table vs benchmark
-# - figure out why benchmark numbers are fucked
-# - scaled?
