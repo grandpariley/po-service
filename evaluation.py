@@ -6,7 +6,7 @@ from itertools import cycle, combinations
 import matplotlib.pyplot as plt
 
 import db
-from fetch_image import insert_image
+from image.fetch_image import insert_image
 from po.match import match_portfolio
 from po.pkg.consts import Constants
 from po.pkg.data import fetch
@@ -138,7 +138,7 @@ async def table_vs_benchmark_arch1(investor, run, solution, benchmark):
 
 async def evaluate():
     benchmark = await fetch('^GSPTSE')
-    for run in range(Constants.NUM_RUNS * 2):
+    for run in range(Constants.NUM_RUNS):
         generations = await get_generations('arch2', run)
         arch2_solutions = await db.get_arch2_portfolios(run=run)
         await graph_solution_bigraph_arch2(run, arch2_solutions)
@@ -152,3 +152,9 @@ async def evaluate():
 if __name__ == '__main__':
     asyncio.run(evaluate())
     Log.log("done evaluation~!")
+
+
+# TODO
+# - add beta to table vs benchmark
+# - figure out why benchmark numbers are fucked
+# - scaled?

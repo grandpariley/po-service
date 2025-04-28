@@ -10,7 +10,7 @@ from po.pkg.problem.builder import default_portfolio_optimization_problem_arch_2
 
 
 async def arch2():
-    for run in range(Constants.NUM_RUNS * 2):
+    for run in range(Constants.NUM_RUNS):
         solutions = await main({
             'arch2-' + str(run): default_portfolio_optimization_problem_arch_2(),
             'Alice-' + str(run): default_portfolio_optimization_problem_arch_1('Alice'),

@@ -6,8 +6,6 @@ import uuid
 import motor.motor_asyncio
 from dotenv import load_dotenv
 
-from po.pkg.log import Log
-
 load_dotenv()
 
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGO_URI"])
@@ -27,7 +25,6 @@ async def get_images():
 
 
 async def insert_image(filename, data_bytes):
-    Log.log("inserting image into db: " + filename)
     await image_collection.insert_one({
         'filename': filename,
         'data': data_bytes
