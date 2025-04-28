@@ -21,6 +21,7 @@ queue_status = client.po.get_collection('queue')
 generation = client.po.get_collection('generation')
 table_vs_benchmark = client.po.get_collection('table_vs_benchmark')
 image = client.po.get_collection('image')
+beta = client.po.get_collection('beta')
 client.get_io_loop = asyncio.get_running_loop
 
 
@@ -132,6 +133,13 @@ async def insert_queue_complete(portfolio_id):
 
 async def insert_queue_started(portfolio_id):
     await queue_status.replace_one({"portfolio_id": portfolio_id}, {"portfolio_id": portfolio_id, "status": "STARTED"})
+
+
+async def insert_beta(tag, b):
+    await beta.insert_one({
+        "tag": tag,
+        "beta": b
+    })
 
 
 def add_run(run, problem):

@@ -124,12 +124,6 @@ async def get_table_vs_benchmark_one_solution(solution, benchmark, weights=None)
     }
 
 
-def decompose(ov, weight):
-    if weight == 0:
-        return 0
-    return ov / weight
-
-
 def get_solution_for_investor(investor, solutions):
     weights = investor['weights']
     return match_portfolio(weights, solutions)
